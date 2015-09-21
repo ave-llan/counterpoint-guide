@@ -1,0 +1,26 @@
+{
+  "name": "counterpoint-guide",
+  "version": "0.0.0",
+  "description": "Interactive visual interface for writing counterpoint",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jrleszcz/counterpoint-guide.git"
+  },
+  "keywords": [
+    "counterpoint"
+  ],
+  "author": {
+    "name": "John Leszczynski",
+    "email": "jrleszczynski@gmail.com",
+    "url": "http://johnleszczynski.com"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/jrleszcz/counterpoint-guide/issues"
+  },
+  "homepage": "https://github.com/jrleszcz/counterpoint-guide#readme"
+}
