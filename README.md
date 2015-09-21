@@ -1,0 +1,1 @@
+A visual interface built on top of [https://github.com/jrleszcz/counterpoint](https://github.com/jrleszcz/counterpoint) for writing counterpoint.
