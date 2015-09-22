@@ -4,7 +4,11 @@
   "description": "Interactive visual interface for writing counterpoint",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "standard",
+    "build": "browserify entry.js -o bundle.js",
+    "watch": "watchify entry.js -o bundle.js --debug --verbose",
+    "view": "reload -b",
+    "open": "npm run build && open index.html"
   },
   "repository": {
     "type": "git",
@@ -22,5 +26,16 @@
   "bugs": {
     "url": "https://github.com/jrleszcz/counterpoint-guide/issues"
   },
-  "homepage": "https://github.com/jrleszcz/counterpoint-guide#readme"
+  "homepage": "https://github.com/jrleszcz/counterpoint-guide#readme",
+  "devDependencies": {
+    "browserify": "^11.1.0",
+    "reload": "^0.4.0",
+    "standard": "^5.3.1",
+    "watchify": "^3.4.0"
+  },
+  "dependencies": {
+    "angular": "^1.4.6",
+    "counterpoint": "0.0.1",
+    "d3": "^3.5.6"
+  }
 }
