@@ -5,16 +5,7 @@ var CantusFirmusMaker = function (key, maxRange, maxLength) {
   maxRange = maxRange || 10     // max range of cf
   maxLength = maxLength || 16   // max length of cf
 
-  this.cf = new CantusFirmus(key, maxRange, maxLength)
-
-  /**
-   * returns an array of pitch strings representing the domain
-   * of choices given the current construction and maxRange
-   * @returns {string[]}
-   */
-  this.domain = function () {
-
-  }
+  var cf = new CantusFirmus(key, maxRange, maxLength)
 
   this.key = function () {
     return key
@@ -26,6 +17,31 @@ var CantusFirmusMaker = function (key, maxRange, maxLength) {
 
   this.maxLength = function () {
     return maxLength
+  }
+
+  this.construction = function () {
+    return cf.cf()
+  }
+
+  this.choices = function (nDeep) {
+    return cf.choices(nDeep || 1)
+  }
+
+  this.pop = function () {
+    return cf.pop()
+  }
+
+  this.isValid = function () {
+    return cf.isValid()
+  }
+
+  /**
+   * returns an array of pitch strings representing the domain
+   * of choices given the current construction and maxRange
+   * @returns {string[]}
+   */
+  this.domain = function () {
+
   }
 }
 
