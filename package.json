@@ -38,6 +38,7 @@
   "dependencies": {
     "angular": "^1.4.6",
     "counterpoint": "0.0.1",
-    "d3": "^3.5.6"
+    "d3": "^3.5.6",
+    "nmusic": "^0.3.0"
   }
 }
