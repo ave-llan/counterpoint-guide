@@ -1,4 +1,6 @@
 var CantusFirmus = require('counterpoint').CantusFirmus
+var Key = require('nmusic').Key
+var sortPitches = require('nmusic').sortPitches
 
 var CantusFirmusMaker = function (key, maxRange, maxLength) {
   key = key || 'C major'        // key of the cf
@@ -27,6 +29,10 @@ var CantusFirmusMaker = function (key, maxRange, maxLength) {
     return cf.choices(nDeep || 1)
   }
 
+  this.addNote = function (note) {
+    cf.addNote(note)
+  }
+
   this.pop = function () {
     return cf.pop()
   }
@@ -41,7 +47,16 @@ var CantusFirmusMaker = function (key, maxRange, maxLength) {
    * @returns {string[]}
    */
   this.domain = function () {
-
+    var keyParts = key.split(' ')
+    var cfKey = new Key(keyParts[0], keyParts[1])
+    var usedNotes = sortPitches(this.construction())
+    var lo = usedNotes[0]
+    var hi = usedNotes[usedNotes.length - 1]
+    var pitches = cfKey.range(cfKey.plusInterval(hi, -1 * maxRange),
+                              cfKey.plusInterval(lo, maxRange))
+    return pitches.map(function (pitch) {
+      return pitch.sciPitch()
+    })
   }
 }
 
