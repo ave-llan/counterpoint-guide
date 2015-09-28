@@ -1,1 +1,1 @@
-require('./js/counterpoint-guide.js')
+require('./app/view/cantus-firmus-guide.js')
