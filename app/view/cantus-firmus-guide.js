@@ -2,30 +2,14 @@ var d3 = require('d3')
 var CFguide = require('../model/cantus-firmus-maker.js')
 var Pitch = require('nmusic').Pitch
 
-var cf = new CFguide('D major', 'D4', 8)
-'B4 A4 C#5 D5 F#4 G4 E4 D4'.split(' ').forEach(cf.addNote)
-/*
-var cf = new cfGuide('D minor', 6, 13)
-cf.addNote('D4')
-cf.addNote('E4')
-cf.addNote('F4')
-cf.addNote('C4')
-cf.addNote('D4')
-cf.addNote('F4')
-cf.addNote('E4')
-cf.addNote('G4')
-cf.addNote('Bb3')
-cf.addNote('C4')
-cf.addNote('F4')
-cf.addNote('E4')
-cf.addNote('D4')
-console.log(cf.choices())
-*/
+var cf = new CFguide('D4', 'major', 8)
+'B4'.split(' ').forEach(cf.addNote)
 
 var margin = {top: 20, right: 10, bottom: 20, left: 10}
 var width = 600 - margin.left - margin.right
-var height = 300 - margin.top - margin.bottom
+var height = 500 - margin.top - margin.bottom
 var yAxisWidth = 44
+var nextChoiceDepth = 3
 
 var yScale = d3.scale.ordinal()
                .domain(cf.domain())
@@ -35,9 +19,18 @@ var xScale = d3.scale.ordinal()
                .domain(d3.range(cf.maxLength()))
                .rangeRoundBands([yAxisWidth, width], 0.05)
 
-var line = d3.svg.line()
+var constructionLine = d3.svg.line()
     .x(function (d, i) {
       return xScale(i)
+    })
+    .y(function (d) {
+      return yScale(d)
+    })
+    .interpolate('monotone')
+
+var choicesLine = d3.svg.line()
+    .x(function (d, i) {
+      return xScale(cf.construction().length - 1 + i)
     })
     .y(function (d) {
       return yScale(d)
@@ -67,19 +60,21 @@ svg.selectAll('text')
   .attr('font-family', 'sans-serif')
   .attr('font-size', '18px')
 
+// add path of current cf construction
 svg.append('path')
       .datum(cf.construction())
-      .attr('class', 'line')
+      .attr('class', 'construction-line')
       .attr({
         'fill': 'none',
         'stroke': 'steelblue',
         'stroke-width': '4px',
         'stroke-linecap': 'round'
       })
-      .attr('d', line)
+      .attr('d', constructionLine)
 
+// add points of current cf construction
 svg.append('g')
-  .attr('id', 'circles')
+  .attr('id', 'construction-points')
   .selectAll('circle')
   .data(cf.construction())
   .enter()
@@ -98,3 +93,44 @@ svg.append('g')
   })
   .attr('r', 6)
 
+var lastNote = cf.construction()[cf.construction().length - 1]
+var choicePaths = cf.choicePaths(nextChoiceDepth).map(function (choicePath) {
+  choicePath.unshift(lastNote)
+  return choicePath
+})
+
+// add paths of next note choices
+svg.append('g')
+  .attr('id', 'choice-path')
+  .selectAll('path')
+  .data(choicePaths)
+  .enter()
+  .append('path')
+  .attr({
+    'fill': 'none',
+    'stroke': 'steelblue',
+    'stroke-width': '1px',
+    'stroke-linecap': 'round',
+    'stroke-opacity': '0.1'
+  })
+  .attr('d', choicesLine)
+
+// add points of choices
+svg.append('g')
+  .attr('id', 'choices-points')
+  .selectAll('circle')
+  .data(cf.choices())
+  .enter()
+  .append('circle')
+  .attr({
+    'fill': 'steelblue',
+    'fill-opacity': '0.3',
+    'stroke-opacity': '0.3',
+    'stroke': 'steelblue',
+    'stroke-width': '1.5px'
+  })
+  .attr('cx', xScale(cf.construction().length))
+  .attr('cy', function (d) {
+    return yScale(d)
+  })
+  .attr('r',6)
