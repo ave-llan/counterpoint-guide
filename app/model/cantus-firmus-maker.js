@@ -2,12 +2,15 @@ var CantusFirmus = require('counterpoint').CantusFirmus
 var Key = require('nmusic').Key
 var sortPitches = require('nmusic').sortPitches
 
-var CantusFirmusMaker = function (key, maxRange, maxLength) {
+var CantusFirmusMaker = function (key, firstNote, maxRange, maxLength) {
   key = key || 'C major'        // key of the cf
+  var keyParts = key.split(' ')
+  firstNote = firstNote || keyParts[0]
   maxRange = maxRange || 10     // max range of cf
   maxLength = maxLength || 16   // max length of cf
 
   var cf = new CantusFirmus(key, maxRange, maxLength)
+  cf.addNote(firstNote)
 
   this.key = function () {
     return key
@@ -34,6 +37,9 @@ var CantusFirmusMaker = function (key, maxRange, maxLength) {
   }
 
   this.pop = function () {
+    if (this.construction().length <= 1) {  // maintain a length of 1
+      throw new Error('No notes to pop.')
+    }
     return cf.pop()
   }
 
