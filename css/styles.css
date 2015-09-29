@@ -14,9 +14,8 @@
 #construction-line {
   fill: none;
   stroke: steelblue;
-  stroke-width: 16px;
   stroke-linecap: round;
-  stroke-opacity: 0.5;
+  stroke-opacity: 0.6;
 }
 
 /* the circles showing notes chosen so far */
@@ -34,9 +33,7 @@
 .choice-paths path {
   fill: none;
   stroke: steelblue;
-  stroke-width: 1.5px;
   stroke-linecap: round;
-  stroke-opacity: 0.3;
 }
 
 /* the circles showing next note choices */
