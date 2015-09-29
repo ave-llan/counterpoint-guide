@@ -24,6 +24,7 @@ var yAxisWidth = 44
 var nextChoiceDepth = 2
 var constructionPointRadius = 15
 var choicePointRadius = 8
+var pathWidth = 3
 
 var y = d3.scale.ordinal()
     .domain(cf.domain())
@@ -37,18 +38,18 @@ var x = d3.scale.ordinal()
 var constructionLine = d3.svg.line()
     .x(function (d, i) { return x(i) })
     .y(function (d) { return y(d) })
-    .interpolate('monotone')
+    .interpolate('linear')
 
 var choicesLine = d3.svg.line()
     .x(function (d, i) { return x(cf.length() - 1 + i) })
     .y(function (d) { return y(d) })
-    .interpolate('monotone')
+    .interpolate('linear')
 
 // for use in animation after choosing a path (what is the path between last two notes)
 var chosenPathLine = d3.svg.line()
     .x(function (d, i) { return x(cf.length() - 2 + i)})
     .y(function (d) { return y(d) })
-    .interpolate('monotone')
+    .interpolate('linear')
 
 // Create SVG element
 var svg = d3.select('counterpoint')
@@ -78,6 +79,7 @@ svg.append('path')
     .datum(cf.construction())
     .attr('id', 'construction-line')
     .attr('d', constructionLine)
+    .attr('stroke-width', pathWidth)
 
 // add points of current cf construction
 svg.append('g')
@@ -102,6 +104,8 @@ svg.append('g')
     .data(choicePaths)
   .enter().append('path')
     .attr('d', choicesLine)
+    .attr('stroke-width', pathWidth)
+    .attr('stroke-opacity', 0.3)
 
 // add points of choices
 svg.append('g')
@@ -121,16 +125,22 @@ svg.append('g')
     })
 
 function redraw (svg) {
+  // before updating scales, use old scale to new point and extend path
+
   // create note in choice position for animation
   var constructionPoints = svg.select('.construction-points').selectAll('circle')
       .data(cf.construction())
-
 
   // add new note disguised as choice note, transition to construction note
   constructionPoints.enter().append('circle')
       .attr('cx', function (d, i) { return x(i) })
       .attr('cy', function (d) { return y(d) })
       .attr('r', choicePointRadius)
+
+  // extend construction to choice before
+  var constructionPath = svg.select('#construction-line')
+      .datum(cf.construction())
+      .attr('d', constructionLine)
 
   // update scales
   y = d3.scale.ordinal()
@@ -160,9 +170,8 @@ function redraw (svg) {
       .attr('sciPitch', function (d) { return d.val })
       .attr('y', function (d) { return y(d.val) })
 
-  // recalcuate current construction y position to match new scale
 
-  // update old points
+  // update all construction points with new scales
   constructionPoints.transition()
       .duration(1000)
       .attr('cx', function (d, i) { return x(i) })
@@ -170,11 +179,9 @@ function redraw (svg) {
       .attr('r', constructionPointRadius) // will grow the new point
 
 
-  // update old construction line
-  var constructionPath = svg.select('#construction-line')
-  var oldLength = constructionPath.node().getTotalLength()
-  console.log('oldLength = ', oldLength)
+  // update construction line with new scales
   constructionPath
+      .datum(cf.construction())
       .transition()
       .duration(1000)
       .attr('d', constructionLine)
@@ -186,12 +193,15 @@ function redraw (svg) {
       .duration(1000)
       .attr('cx', x(cf.length() - 1))
       .attr('cy', y(pickedNote))
+      .attr('r', choicePointRadius / 2)
       .remove()
 
+  // remove old choice paths
   svg.select('.choice-paths').selectAll('path')
       .data(chosenPath)
       .transition()
       .duration(1000)
       .attr('d', chosenPathLine)
+      .attr('stroke-opacity', 0)
       .remove()
 }
