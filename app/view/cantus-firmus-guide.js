@@ -152,25 +152,6 @@ function redraw (svg) {
     .rangeRoundBands([yAxisWidth, width], 0.05)
 
 
-  // recalculate y axis text
-  var yText = svg.select('.y-axis-text').selectAll('text')
-      .data(cf.domain().map(function (sciPitch) {
-        return { val: sciPitch }
-      }), function (d) { return d.val })
-  // remove unused notes in domain
-  yText.exit()
-      .transition()
-      .duration(250)
-      .attr('x', -50)
-      .remove()
-  // update remaining
-  yText.transition()
-      .duration(1000)
-      .text(function (d) { return Pitch(d.val).pitchClass() })
-      .attr('sciPitch', function (d) { return d.val })
-      .attr('y', function (d) { return y(d.val) })
-
-
   // update all construction points with new scales
   constructionPoints.transition()
       .duration(1000)
@@ -188,20 +169,78 @@ function redraw (svg) {
 
   // remove old choices after animating into pickedNote
   var pickedNote = cf.construction()[cf.length()-1]
-  svg.select('.choice-points').selectAll('circle')
+  var oldChoicePoints = svg.select('.choice-points')
+  oldChoicePoints.selectAll('circle')
       .transition()
       .duration(1000)
       .attr('cx', x(cf.length() - 1))
       .attr('cy', y(pickedNote))
       .attr('r', choicePointRadius / 2)
+  oldChoicePoints.transition()
+      .delay(1000)
       .remove()
 
   // remove old choice paths
-  svg.select('.choice-paths').selectAll('path')
+  var oldChoicePaths = svg.select('.choice-paths')
+  oldChoicePaths.selectAll('path')
       .data(chosenPath)
       .transition()
       .duration(1000)
       .attr('d', chosenPathLine)
       .attr('stroke-opacity', 0)
+  oldChoicePaths.transition()
+      .delay(1000)
       .remove()
+
+  // if choices, add them
+  if (cf.choices().length > 0) {
+    var lastNote = cf.construction()[cf.length() - 1]
+    choicePaths = cf.choices().map(function (nextChoice) {
+      return [lastNote, nextChoice]
+    })
+    // add paths to next note choices
+    svg.append('g')
+        .attr('class', 'choice-paths')
+      .selectAll('path')
+        .data(choicePaths)
+      .enter().append('path')
+        .attr('d', choicesLine)
+        .attr('stroke-width', pathWidth)
+        .attr('stroke-opacity', 0.3)
+
+    // add points of choices
+    svg.append('g')
+        .attr('class', 'choice-points')
+      .selectAll('circle')
+        .data(cf.choices())
+      .enter().append('circle')
+        .attr('cx', x(cf.length()))
+        .attr('cy', function (d) { return y(d) })
+        .attr('r', choicePointRadius)
+        .on('click', function (d, i) {
+          chosenPath = choicePaths.map(function () {
+            return choicePaths[i]
+          })
+          cf.addNote(d)
+          redraw(svg)
+        })
+  }
+
+  // recalculate y axis text
+  var yText = svg.select('.y-axis-text').selectAll('text')
+      .data(cf.domain().map(function (sciPitch) {
+        return { val: sciPitch }
+      }), function (d) { return d.val })
+  // remove unused notes in domain
+  yText.exit()
+      .transition()
+      .duration(250)
+      .attr('x', -50)
+      .remove()
+  // update remaining
+  yText.transition()
+      .duration(1000)
+      .text(function (d) { return Pitch(d.val).pitchClass() })
+      .attr('sciPitch', function (d) { return d.val })
+      .attr('y', function (d) { return y(d.val) })
 }
