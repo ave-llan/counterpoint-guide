@@ -15,6 +15,7 @@ var createCFfromDOM = function () {
 }
 
 var cf = createCFfromDOM()
+'A4 G4 A4 Bb4 F4 G4 E4 D4'.split(' ').forEach(cf.addNote)
 
 var margin = {top: 20, right: 10, bottom: 20, left: 10}
 var width = 600 - margin.left - margin.right
@@ -28,7 +29,7 @@ var yScale = d3.scale.ordinal()
 console.log(yScale('G4'))
 
 var xScale = d3.scale.ordinal()
-    .domain(d3.range(cf.maxLength()))
+    .domain(d3.range(d3.max([8, cf.construction().length + 2]))) // min 8, at least cur + 2
     .rangeRoundBands([yAxisWidth, width], 0.05)
 
 var constructionLine = d3.svg.line()
