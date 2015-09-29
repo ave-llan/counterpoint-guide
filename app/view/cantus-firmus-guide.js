@@ -15,7 +15,7 @@ var createCFfromDOM = function () {
 }
 
 var cf = createCFfromDOM()
-'A4 G4 C4 E4'.split(' ').forEach(cf.addNote)
+'E4 F4 G4 A4'.split(' ').forEach(cf.addNote)
 
 var margin = {top: 20, right: 10, bottom: 20, left: 10}
 var width = 600 - margin.left - margin.right
@@ -26,10 +26,10 @@ var nextChoiceDepth = 2
 var yScale = d3.scale.ordinal()
     .domain(cf.domain())
     .rangeRoundBands([height, 0], 0.05)
-console.log(yScale('G4'))
 
 var xScale = d3.scale.ordinal()
-    .domain(d3.range(d3.max([8, cf.construction().length + 2]))) // min 8, at least cur + 2
+    // min 8, at least cur + 2
+    .domain(d3.range(d3.max([8, cf.construction().length + 2])))
     .rangeRoundBands([yAxisWidth, width], 0.05)
 
 var constructionLine = d3.svg.line()
@@ -54,14 +54,16 @@ var svg = d3.select('counterpoint')
 svg.append('g')
     .attr('class', 'y-axis-text')
   .selectAll('text')
-    .data(cf.domain())
+    .data(cf.domain().map(function (sciPitch) {
+      return {val: sciPitch}
+    }), function (d) { return d.val })
   .enter().append('text')
-    .text(function (d) { return Pitch(d).pitchClass() })
-    .attr('sciPitch', function (d) { return d })
+    .text(function (d) { return Pitch(d.val).pitchClass() })
+    .attr('sciPitch', function (d) { return d.val })
     .attr('text-anchor', 'start')
     .attr('dominant-baseline', 'central')
     .attr('x', 0)
-    .attr('y', function (d) { return yScale(d) })
+    .attr('y', function (d) { return yScale(d.val) })
 
 // add path of current cf construction
 svg.append('path')
@@ -99,3 +101,45 @@ svg.append('g')
   .enter().append('circle')
     .attr('cx', xScale(cf.construction().length))
     .attr('cy', function (d) { return yScale(d) })
+    .on('click', function (d, i) {
+      cf.addNote(d)
+      redraw(svg)
+    })
+
+function redraw (svg) {
+  // update scales
+  yScale = d3.scale.ordinal()
+    .domain(cf.domain())
+    .rangeRoundBands([height, 0], 0.05)
+
+  xScale = d3.scale.ordinal()
+    .domain(d3.range(d3.max([8, cf.construction().length + 2])))
+    .rangeRoundBands([yAxisWidth, width], 0.05)
+
+  // recalculate y axis text
+  var yText = svg.select('.y-axis-text').selectAll('text')
+      .data(cf.domain().map(function (sciPitch) {
+        return { val: sciPitch }
+      }), function (d) { return d.val })
+  // remove unused notes in domain
+  yText.exit()
+      .transition()
+      .duration(250)
+      .attr('x', -50)
+      .remove()
+  // update remaining
+  yText.transition()
+      .duration(1000)
+      .text(function (d) { return Pitch(d.val).pitchClass() })
+      .attr('sciPitch', function (d) { return d.val })
+      .attr('y', function (d) { return yScale(d.val) })
+
+  // recalcuate current construction y position to match new scale
+  var constructionPoints = svg.select('.construction-points').selectAll('circle')
+      .data(cf.construction())
+  // update old points
+  constructionPoints.transition()
+      .duration(1000)
+      .attr('cx', function (d, i) { return xScale(i) })
+      .attr('cy', function (d) { return yScale(d) })
+}
