@@ -2,8 +2,19 @@ var d3 = require('d3')
 var CFguide = require('../model/cantus-firmus-maker.js')
 var Pitch = require('nmusic').Pitch
 
-var cf = new CFguide('D4', 'minor', 6)
-'E4 F4'.split(' ').forEach(cf.addNote)
+/**
+ * Find a counterpoint element in the DOM, and read its attributes.
+ * @returns {CFguide} a new cf guide configured with dom attributes
+ */
+var createCFfromDOM = function () {
+  var c = d3.select('counterpoint')
+  return new CFguide(c.attr('first-note'),
+                     c.attr('mode'),
+                     c.attr('max-range'),
+                     c.attr('max-length'))
+}
+
+var cf = createCFfromDOM()
 
 var margin = {top: 20, right: 10, bottom: 20, left: 10}
 var width = 600 - margin.left - margin.right
