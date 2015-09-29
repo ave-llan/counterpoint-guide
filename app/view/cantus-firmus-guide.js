@@ -22,6 +22,8 @@ var width = 600 - margin.left - margin.right
 var height = 500 - margin.top - margin.bottom
 var yAxisWidth = 44
 var nextChoiceDepth = 2
+var constructionPointRadius = 15
+var choicePointRadius = 8
 
 var y = d3.scale.ordinal()
     .domain(cf.domain())
@@ -85,6 +87,7 @@ svg.append('g')
   .enter().append('circle')
     .attr('cx', function (d, i) { return x(i) })
     .attr('cy', function (d) { return y(d) })
+    .attr('r', constructionPointRadius)
 
 var lastNote = cf.construction()[cf.length() - 1]
 var choicePaths = cf.choices().map(function (nextChoice) {
@@ -108,6 +111,7 @@ svg.append('g')
   .enter().append('circle')
     .attr('cx', x(cf.length()))
     .attr('cy', function (d) { return y(d) })
+    .attr('r', choicePointRadius)
     .on('click', function (d, i) {
       chosenPath = choicePaths.map(function () {
         return choicePaths[i]
@@ -117,6 +121,17 @@ svg.append('g')
     })
 
 function redraw (svg) {
+  // create note in choice position for animation
+  var constructionPoints = svg.select('.construction-points').selectAll('circle')
+      .data(cf.construction())
+
+
+  // add new note disguised as choice note, transition to construction note
+  constructionPoints.enter().append('circle')
+      .attr('cx', function (d, i) { return x(i) })
+      .attr('cy', function (d) { return y(d) })
+      .attr('r', choicePointRadius)
+
   // update scales
   y = d3.scale.ordinal()
     .domain(cf.domain())
@@ -125,6 +140,7 @@ function redraw (svg) {
   x = d3.scale.ordinal()
     .domain(d3.range(d3.max([8, cf.length() + 2])))
     .rangeRoundBands([yAxisWidth, width], 0.05)
+
 
   // recalculate y axis text
   var yText = svg.select('.y-axis-text').selectAll('text')
@@ -145,16 +161,20 @@ function redraw (svg) {
       .attr('y', function (d) { return y(d.val) })
 
   // recalcuate current construction y position to match new scale
-  var constructionPoints = svg.select('.construction-points').selectAll('circle')
-      .data(cf.construction())
+
   // update old points
   constructionPoints.transition()
       .duration(1000)
       .attr('cx', function (d, i) { return x(i) })
       .attr('cy', function (d) { return y(d) })
+      .attr('r', constructionPointRadius) // will grow the new point
+
+
   // update old construction line
-  svg.select('#construction-line')
-      // .datum(cf.construction())
+  var constructionPath = svg.select('#construction-line')
+  var oldLength = constructionPath.node().getTotalLength()
+  console.log('oldLength = ', oldLength)
+  constructionPath
       .transition()
       .duration(1000)
       .attr('d', constructionLine)
