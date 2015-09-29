@@ -3,7 +3,7 @@ var CFguide = require('../model/cantus-firmus-maker.js')
 var Pitch = require('nmusic').Pitch
 
 var cf = new CFguide('D4', 'minor', 6)
-'E4 F4 C4 D4 F4 E4 G4 Bb3 C4 F4 E4 D4'.split(' ').forEach(cf.addNote)
+'E4 F4'.split(' ').forEach(cf.addNote)
 
 var margin = {top: 20, right: 10, bottom: 20, left: 10}
 var width = 600 - margin.left - margin.right
@@ -78,9 +78,8 @@ svg.append('g')
     .attr('r', 6)
 
 var lastNote = cf.construction()[cf.construction().length - 1]
-var choicePaths = cf.choicePaths(nextChoiceDepth).map(function (choicePath) {
-  choicePath.unshift(lastNote)
-  return choicePath
+var choicePaths = cf.choices().map(function (nextChoice) {
+  return [lastNote, nextChoice]
 })
 
 // add paths to next note choices
