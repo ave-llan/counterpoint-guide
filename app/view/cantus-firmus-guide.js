@@ -29,7 +29,7 @@ var yScale = d3.scale.ordinal()
 
 var xScale = d3.scale.ordinal()
     // min 8, at least cur + 2
-    .domain(d3.range(d3.max([8, cf.construction().length + 2])))
+    .domain(d3.range(d3.max([8, cf.length() + 2])))
     .rangeRoundBands([yAxisWidth, width], 0.05)
 
 var constructionLine = d3.svg.line()
@@ -38,7 +38,13 @@ var constructionLine = d3.svg.line()
     .interpolate('monotone')
 
 var choicesLine = d3.svg.line()
-    .x(function (d, i) { return xScale(cf.construction().length - 1 + i) })
+    .x(function (d, i) { return xScale(cf.length() - 1 + i) })
+    .y(function (d) { return yScale(d) })
+    .interpolate('monotone')
+
+// for use in animation after choosing a path (what is the path between last two notes)
+var chosenPathLine = d3.svg.line()
+    .x(function (d, i) { return xScale(cf.length() - 2 + i)})
     .y(function (d) { return yScale(d) })
     .interpolate('monotone')
 
@@ -80,10 +86,11 @@ svg.append('g')
     .attr('cx', function (d, i) { return xScale(i) })
     .attr('cy', function (d) { return yScale(d) })
 
-var lastNote = cf.construction()[cf.construction().length - 1]
+var lastNote = cf.construction()[cf.length() - 1]
 var choicePaths = cf.choices().map(function (nextChoice) {
   return [lastNote, nextChoice]
 })
+var chosenPath
 
 // add paths to next note choices
 svg.append('g')
@@ -99,9 +106,12 @@ svg.append('g')
   .selectAll('circle')
     .data(cf.choices())
   .enter().append('circle')
-    .attr('cx', xScale(cf.construction().length))
+    .attr('cx', xScale(cf.length()))
     .attr('cy', function (d) { return yScale(d) })
     .on('click', function (d, i) {
+      chosenPath = choicePaths.map(function () {
+        return choicePaths[i]
+      })
       cf.addNote(d)
       redraw(svg)
     })
@@ -113,7 +123,7 @@ function redraw (svg) {
     .rangeRoundBands([height, 0], 0.05)
 
   xScale = d3.scale.ordinal()
-    .domain(d3.range(d3.max([8, cf.construction().length + 2])))
+    .domain(d3.range(d3.max([8, cf.length() + 2])))
     .rangeRoundBands([yAxisWidth, width], 0.05)
 
   // recalculate y axis text
@@ -142,4 +152,24 @@ function redraw (svg) {
       .duration(1000)
       .attr('cx', function (d, i) { return xScale(i) })
       .attr('cy', function (d) { return yScale(d) })
+  // update old construction line
+  svg.select('#construction-line')
+      .transition()
+      .duration(1000)
+      .attr('d', constructionLine)
+
+  // remove old choices after animating into pickedNote
+  var pickedNote = cf.construction()[cf.length()-1]
+  svg.select('.choice-points').selectAll('circle')
+      .transition()
+      .duration(1000)
+      .attr('cy', yScale(pickedNote))
+      .remove()
+
+  svg.select('.choice-paths').selectAll('path')
+      .data(chosenPath)
+      .transition()
+      .duration(1000)
+      .attr('d', chosenPathLine)
+      .remove()
 }
