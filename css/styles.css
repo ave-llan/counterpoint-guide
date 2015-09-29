@@ -1,19 +1,50 @@
-/*
-.axis path, line {
+
+/* text of note names on y-axis */
+.y-axis-text text {
+  font-family: sans-serif;
+  font-size: 1.3em;
+}
+
+
+/*******************************************
+ * The current construction (chosen notes) *
+ *******************************************/
+
+/* path connecting the notes chosen so far */
+#construction-line {
   fill: none;
-  stroke: black;
-  shape-rendering: crispEdges;
+  stroke: steelblue;
+  stroke-width: 16px;
+  stroke-linecap: round;
+  stroke-opacity: 0.5;
 }
 
-.axis text {
-  font-family: sans-serif;
-  font-size: 11px;
-  fill: olive;
+/* the circles showing notes chosen so far */
+.construction-points circle {
+  fill: steelblue;
+  fill-opacity: 1;
+  stroke-width: 0;
+  r: 8;
 }
 
-text {
-  font-family: sans-serif;
-  font-size: 12px;
-  fill: white;
+
+/*******************************************
+ * The choices                             *
+ *******************************************/
+
+/* paths connecting last note to possible choices */
+.choice-paths path {
+  fill: none;
+  stroke: steelblue;
+  stroke-width: 1.5px;
+  stroke-linecap: round;
+  stroke-opacity: 0.3;
 }
-*/
+
+/* the circles showing next note choices */
+.choice-points circle {
+  fill: steelblue;
+  fill-opacity: 0.8;
+  stroke-width: 0;
+  r: 6;
+}
