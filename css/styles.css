@@ -27,17 +27,6 @@
   r: 15;
 }
 
-#hovered-construction-point {
-  r: 20;
-}
-
-.construction-points circle {
-        -moz-transition: all 0.2s;
-        -o-transition: all 0.2s;
-        -webkit-transition: all 0.2s;
-        transition: all 0.2s;
-}
-
 /*******************************************
  * The choices                             *
  *******************************************/
@@ -57,16 +46,4 @@
   fill-opacity: 1;
   stroke-width: 0;
   r: 8;
-}
-
-.choice-points circle:hover {
-  fill: orange;
-  r: 15;
-}
-
-.choice-points circle {
-        -moz-transition: all 0.2s;
-        -o-transition: all 0.2s;
-        -webkit-transition: all 0.2s;
-        transition: all 0.2s;
 }
