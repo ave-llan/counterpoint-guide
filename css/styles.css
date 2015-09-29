@@ -24,9 +24,19 @@
   fill: steelblue;
   fill-opacity: 1;
   stroke-width: 0;
-  r: 8;
+  r: 15;
 }
 
+#hovered-construction-point {
+  r: 20;
+}
+
+.construction-points circle {
+        -moz-transition: all 0.2s;
+        -o-transition: all 0.2s;
+        -webkit-transition: all 0.2s;
+        transition: all 0.2s;
+}
 
 /*******************************************
  * The choices                             *
@@ -44,7 +54,19 @@
 /* the circles showing next note choices */
 .choice-points circle {
   fill: steelblue;
-  fill-opacity: 0.8;
+  fill-opacity: 1;
   stroke-width: 0;
-  r: 6;
+  r: 8;
+}
+
+.choice-points circle:hover {
+  fill: orange;
+  r: 15;
+}
+
+.choice-points circle {
+        -moz-transition: all 0.2s;
+        -o-transition: all 0.2s;
+        -webkit-transition: all 0.2s;
+        transition: all 0.2s;
 }
