@@ -15,7 +15,7 @@ var createCFfromDOM = function () {
 }
 
 var cf = createCFfromDOM()
-'A4 G4 A4 Bb4 F4 G4 E4 D4'.split(' ').forEach(cf.addNote)
+'A4 G4 C4 E4'.split(' ').forEach(cf.addNote)
 
 var margin = {top: 20, right: 10, bottom: 20, left: 10}
 var width = 600 - margin.left - margin.right
@@ -68,8 +68,9 @@ svg.append('path')
     .attr({
       'fill': 'none',
       'stroke': 'steelblue',
-      'stroke-width': '4px',
-      'stroke-linecap': 'round'
+      'stroke-width': '16px',
+      'stroke-linecap': 'round',
+      'stroke-opacity': '0.5'
     })
     .attr('d', constructionLine)
 
@@ -81,13 +82,13 @@ svg.append('g')
   .enter().append('circle')
     .attr({
       'fill': 'steelblue',
-      'fill-opacity': '0.9',
+      'fill-opacity': '1',
       'stroke': 'steelblue',
-      'stroke-width': '1.5px'
+      'stroke-width': '0px'
     })
     .attr('cx', function (d, i) { return xScale(i) })
     .attr('cy', function (d) { return yScale(d) })
-    .attr('r', 6)
+    .attr('r', 8)
 
 var lastNote = cf.construction()[cf.construction().length - 1]
 var choicePaths = cf.choices().map(function (nextChoice) {
