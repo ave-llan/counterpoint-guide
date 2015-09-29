@@ -15,7 +15,7 @@ var createCFfromDOM = function () {
 }
 
 var cf = createCFfromDOM()
-'E4 F4 G4 A4'.split(' ').forEach(cf.addNote)
+'E4 F4 E4 D4 E4 F4'.split(' ').forEach(cf.addNote)
 
 var margin = {top: 20, right: 10, bottom: 20, left: 10}
 var width = 600 - margin.left - margin.right
@@ -154,6 +154,7 @@ function redraw (svg) {
       .attr('cy', function (d) { return yScale(d) })
   // update old construction line
   svg.select('#construction-line')
+      // .datum(cf.construction())
       .transition()
       .duration(1000)
       .attr('d', constructionLine)
@@ -163,6 +164,7 @@ function redraw (svg) {
   svg.select('.choice-points').selectAll('circle')
       .transition()
       .duration(1000)
+      .attr('cx', xScale(cf.length() - 1))
       .attr('cy', yScale(pickedNote))
       .remove()
 
