@@ -30,7 +30,7 @@
  *******************************************/
 
 /* paths connecting last note to possible choices */
-.choice-paths path {
+.choice-paths line {
   fill: none;
   stroke: steelblue;
   stroke-linecap: round;
