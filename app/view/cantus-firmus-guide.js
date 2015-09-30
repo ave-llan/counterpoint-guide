@@ -15,7 +15,7 @@ var createCFfromDOM = function () {
 }
 
 var cf = createCFfromDOM()
-'E4 C4'.split(' ').forEach(cf.addNote)
+//'E4 C4'.split(' ').forEach(cf.addNote)
 
 var margin = {top: 20, right: 10, bottom: 20, left: 10}
 var width = 600 - margin.left - margin.right
@@ -91,21 +91,22 @@ svg.append('g')
     .attr('cy', function (d) { return y(d) })
     .attr('r', constructionPointRadius)
 
-var lastNote = cf.construction()[cf.length() - 1]
-var choicePaths = cf.choices().map(function (nextChoice) {
-  return [lastNote, nextChoice]
-})
-var chosenPath
-
 // add paths to next note choices
 svg.append('g')
     .attr('class', 'choice-paths')
-  .selectAll('path')
-    .data(choicePaths)
-  .enter().append('path')
-    .attr('d', choicesLine)
+  .selectAll('line')
+    .data(cf.choices())
+  .enter().append('line')
+    .attr('x1', x(cf.length() - 1))
+    .attr('y1', y(cf.lastNote()))
+    .attr('x2', x(cf.length() - 1))
+    .attr('y2', y(cf.lastNote()))
     .attr('stroke-width', pathWidth)
     .attr('stroke-opacity', 0.3)
+    .transition()
+    .duration(1500)
+    .attr('x2', x(cf.length()))
+    .attr('y2', function (d) { return y(d) })
 
 // add points of choices
 svg.append('g')
@@ -114,12 +115,9 @@ svg.append('g')
     .data(cf.choices())
   .enter().append('circle')
     .attr('cx', x(cf.length() - 1))
-    .attr('cy', function (d) { return y(lastNote) })
+    .attr('cy', y(cf.lastNote()))
     .attr('r', choicePointRadius / 2)
     .on('click', function (d, i) {
-      chosenPath = choicePaths.map(function () {
-        return choicePaths[i]
-      })
       cf.addNote(d)
       redraw(svg)
     })
@@ -131,7 +129,6 @@ svg.append('g')
 
 function redraw (svg) {
   // before updating scales, use old scale to new point and extend path
-  var lastNote = cf.construction()[cf.length() - 1]
   // create note in choice position for animation
   var constructionPoints = svg.select('.construction-points').selectAll('circle')
       .data(cf.construction())
@@ -147,6 +144,20 @@ function redraw (svg) {
       .datum(cf.construction())
       .attr('d', constructionLine)
 
+  // add new paths at point of this choice
+  var newChoicePaths = svg.append('g')
+      .attr('class', 'choice-paths')
+    .selectAll('line')
+      .data(cf.choices())
+    .enter().append('line')
+      .attr('x1', x(cf.length() - 1))
+      .attr('y1', y(cf.lastNote()))
+      .attr('x2', x(cf.length() - 1))
+      .attr('y2', y(cf.lastNote()))
+      .attr('stroke-width', pathWidth)
+      .attr('stroke-opacity', 0.3)
+
+
   // add new choices at point of this choice
   var newCircles = svg.append('g')
       .attr('class', 'choice-points')
@@ -154,12 +165,9 @@ function redraw (svg) {
       .data(cf.choices())
     .enter().append('circle')
       .attr('cx', x(cf.length() - 1))
-      .attr('cy', function (d) { return y(lastNote) })
+      .attr('cy', y(cf.lastNote()))
       .attr('r', choicePointRadius / 2)
       .on('click', function (d, i) {
-        chosenPath = choicePaths.map(function () {
-          return choicePaths[i]
-        })
         cf.addNote(d)
         redraw(svg)
       })
@@ -203,33 +211,31 @@ function redraw (svg) {
       .remove()
 
   // remove old choice paths
+  var penultimateNote = cf.construction()[cf.length() - 2]
   var oldChoicePaths = svg.select('.choice-paths')
-  oldChoicePaths.selectAll('path')
-      .data(chosenPath)
+  oldChoicePaths.selectAll('line')
       .transition()
       .duration(1000)
-      .attr('d', chosenPathLine)
+      .attr('x1', x(cf.length() - 2))
+      .attr('y1', y(penultimateNote))
+      .attr('x2', x(cf.length() - 1))
+      .attr('y2', y(cf.lastNote()))
       .attr('stroke-opacity', 0)
-  oldChoicePaths.transition()
+  oldChoicePaths.transition()      // remove the whole group
       .delay(1000)
       .remove()
 
-  // calculate new choice paths
-  choicePaths = cf.choices().map(function (nextChoice) {
-    return [lastNote, nextChoice]
-  })
-  // add paths to next note choices
-  svg.append('g')
-      .attr('class', 'choice-paths')
-    .selectAll('path')
-      .data(choicePaths)
-    .enter().append('path')
-      .attr('d', choicesLine)
-      .attr('stroke-width', pathWidth)
-      .attr('stroke-opacity', 0.3)
+  // move choice paths to choices using new scales
+  newChoicePaths.transition()
+    .duration(1000)
+    .attr('x1', x(cf.length() - 1))
+    .attr('y1', y(cf.lastNote()))
+    .attr('x2', x(cf.length()))
+    .attr('y2', function (d) { return y(d) })
 
+  // move choice notes out using new scales
   newCircles.transition()
-      .delay(300)
+      // .delay(300)
       .duration(1000)
       .attr('cx', x(cf.length()))
       .attr('cy', function (d) { return y(d) })
