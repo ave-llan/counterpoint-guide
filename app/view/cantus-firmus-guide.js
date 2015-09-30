@@ -26,6 +26,12 @@ var constructionPointRadius = 15
 var choicePointRadius = 8
 var pathWidth = 3
 
+var xDomain = function () {
+  var minAllowed = d3.max([8, cf.length() + 2])
+  var range = min > cf.maxLength() ? cf.maxLength() : min
+  return d3.range(range)
+}
+
 var y = d3.scale.ordinal()
     .domain(cf.domain())
     .rangeRoundBands([height, 0], 0.05)
@@ -37,17 +43,6 @@ var x = d3.scale.ordinal()
 
 var constructionLine = d3.svg.line()
     .x(function (d, i) { return x(i) })
-    .y(function (d) { return y(d) })
-    .interpolate('linear')
-
-var choicesLine = d3.svg.line()
-    .x(function (d, i) { return x(cf.length() - 1 + i) })
-    .y(function (d) { return y(d) })
-    .interpolate('linear')
-
-// for use in animation after choosing a path (what is the path between last two notes)
-var chosenPathLine = d3.svg.line()
-    .x(function (d, i) { return x(cf.length() - 2 + i)})
     .y(function (d) { return y(d) })
     .interpolate('linear')
 
