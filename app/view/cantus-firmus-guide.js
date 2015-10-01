@@ -80,7 +80,7 @@ svg.append('g')
 
 // add path of current cf construction
 svg.append('path')
-    .datum(cf.construction())
+    .datum(cf.construction().concat(cf.lastNote()))
     .attr('id', 'construction-line')
     .attr('d', constructionLine)
     .attr('stroke-width', pathWidth)
