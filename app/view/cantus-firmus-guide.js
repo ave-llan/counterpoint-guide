@@ -1,6 +1,7 @@
 var d3 = require('d3')
 var CFguide = require('../model/cantus-firmus-maker.js')
 var Pitch = require('nmusic').Pitch
+var sortPitches = require('nmusic').sortPitches
 
 /**
  * Find a counterpoint element in the DOM, and read its attributes.
@@ -15,7 +16,7 @@ var createCFfromDOM = function () {
 }
 
 var cf = createCFfromDOM()
-'E4 F4 C4 D4 F4 E4 G4 Bb3 C4 F4 E4 D4'.split(' ').forEach(cf.addNote)
+'E4 F4 C4 D4 F4 E4 G4 Bb3 C4'.split(' ').forEach(cf.addNote)
 
 var margin = {top: 20, right: 10, bottom: 20, left: 10}
 var width = 600 - margin.left - margin.right
@@ -25,7 +26,8 @@ var nextChoiceDepth = 2
 var constructionPointRadius = 15
 var choicePointRadius = 12
 var pathWidth = 1
-var animationTime = 500
+var animationTime = 1000
+var choicePadding = 0.16
 
 var xDomain = function () {
   var minAllowed = d3.max([8, cf.length() + 2])
@@ -41,6 +43,10 @@ var x = d3.scale.ordinal()
     // min 8, at least cur + 2
     .domain(d3.range(d3.max([8, cf.length() + 1])))
     .rangeRoundBands([yAxisWidth, width])
+
+var choiceBoxYPadding = function () {
+  return y.rangeBand() * choicePadding
+}
 
 var constructionLine = d3.svg.line()
     .x(function (d, i) { return x(i) + x.rangeBand() / 2})
@@ -95,12 +101,33 @@ svg.append('g')
 // add points of choices
 svg.append('g')
     .attr('class', 'choice-notes')
-  .selectAll('circle')
-    .data(cf.choices())
-  .enter().append('circle')
-    .attr('cx', x(cf.length() - 1))
-    .attr('cy', y(cf.lastNote()))
-    .attr('r', choicePointRadius / 2)
+  .selectAll('rect')
+    .data(sortPitches(cf.choices()))
+  .enter().append('rect')
+    .attr('x', function (d) {
+      var lastIndex = cf.construction().lastIndexOf(d)
+      return (lastIndex === -1) ? yAxisWidth : x(lastIndex)
+    })
+    .attr('y', function (d) {
+      return (cf.construction().lastIndexOf(d) === -1) ? y(d) + y.rangeBand() / 2
+                                                       : y(d)
+    })
+    .attr('width', function (d) {
+      return (cf.construction().lastIndexOf(d) === -1) ? 0 : x.rangeBand()
+    })
+    .attr('height', function (d) {
+      return (cf.construction().lastIndexOf(d) === -1) ? 0 : y.rangeBand()
+    })
+    .attr('fill-opacity', 0)
+    .attr('stroke-opacity', 0)
+    .transition()
+    .delay(function (d, i) {
+      return i * (animationTime / 10)
+    })
+    .duration(1000)
+    .attr('fill-opacity', 0.3)
+    .attr('stroke-opacity', 1)
+    /*
     .on('click', function (d, i) {
       // remove all choice-points 'on-click listeners'
       svg.select('.choice-points').selectAll('circle')
@@ -108,11 +135,29 @@ svg.append('g')
       cf.addNote(d)
       redraw(svg)
     })
-    .transition()
-    .duration(animationTime)
-    .attr('cx', x(cf.length()))
-    .attr('cy', function (d) { return y(d) })
-    .attr('r', choicePointRadius)
+    */
+    .each('end', function () {
+      d3.select(this)
+          .on('mouseover', function () {
+            var choiceNote = d3.select(this).data()
+            var possibleCF = cf.construction()
+            possibleCF.push(choiceNote)
+            d3.select('#construction-line')
+                .datum(possibleCF)
+                .transition()
+                .duration(500)
+                .attr('d', constructionLine)
+          })
+          .transition()
+          .duration(animationTime)
+          .attr('x', x(cf.length()))
+          .attr('y', function (d) { return y(d) + choiceBoxYPadding() / 2 })
+          .attr('width', x.rangeBand())
+          .attr('height', y.rangeBand() - choiceBoxYPadding())
+          .attr('fill-opacity', 0.3)
+    })
+
+
 
 /*
     // add paths to next note choices
