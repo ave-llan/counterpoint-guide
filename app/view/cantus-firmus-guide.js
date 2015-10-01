@@ -139,11 +139,8 @@ svg.append('g')
     .each('end', function () {
       d3.select(this)
           .on('mouseover', function () {
-            var choiceNote = d3.select(this).data()
-            var possibleCF = cf.construction()
-            possibleCF.push(choiceNote)
             d3.select('#construction-line')
-                .datum(possibleCF)
+                .datum(cf.construction().concat(d3.select(this).data()))
                 .transition()
                 .duration(500)
                 .attr('d', constructionLine)
