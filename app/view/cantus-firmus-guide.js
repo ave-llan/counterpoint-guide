@@ -18,13 +18,13 @@ var cf = createCFfromDOM()
 'E4 F4 C4 D4 F4 E4 G4 Bb3 C4 F4 E4 D4'.split(' ').forEach(cf.addNote)
 
 var margin = {top: 20, right: 10, bottom: 20, left: 10}
-var width = 1200 - margin.left - margin.right
-var height = 250 - margin.top - margin.bottom
+var width = 600 - margin.left - margin.right
+var height = 450 - margin.top - margin.bottom
 var yAxisWidth = 44
 var nextChoiceDepth = 2
 var constructionPointRadius = 15
 var choicePointRadius = 12
-var pathWidth = 2
+var pathWidth = 1
 var animationTime = 500
 
 var xDomain = function () {
@@ -39,7 +39,7 @@ var y = d3.scale.ordinal()
 
 var x = d3.scale.ordinal()
     // min 8, at least cur + 2
-    .domain(d3.range(d3.max([8, cf.length() + 2])))
+    .domain(d3.range(d3.max([8, cf.length() + 1])))
     .rangeRoundBands([yAxisWidth, width])
 
 var constructionLine = d3.svg.line()
@@ -72,7 +72,6 @@ svg.append('g')
     .attr('y', function (d) { return y(d.val) + y.rangeBand() / 2 })
 
 
-
 // add path of current cf construction
 svg.append('path')
     .datum(cf.construction())
@@ -80,9 +79,10 @@ svg.append('path')
     .attr('d', constructionLine)
     .attr('stroke-width', pathWidth)
 
+
 // add points of current cf construction
 svg.append('g')
-    .attr('class', 'construction-points')
+    .attr('class', 'construction-notes')
   .selectAll('rect')
     .data(cf.construction())
   .enter().append('rect')
@@ -90,29 +90,11 @@ svg.append('g')
     .attr('y', function (d) { return y(d) })
     .attr('width', x.rangeBand())
     .attr('height', y.rangeBand())
-/*
-// add paths to next note choices
-
-svg.append('g')
-    .attr('class', 'choice-paths')
-  .selectAll('line')
-    .data(cf.choices())
-  .enter().append('line')
-    .attr('x1', x(cf.length() - 1))
-    .attr('y1', y(cf.lastNote()))
-    .attr('x2', x(cf.length() - 1))
-    .attr('y2', y(cf.lastNote()))
-    .attr('stroke-width', pathWidth)
-    .attr('stroke-opacity', 0.15)
-    .transition()
-    .duration(animationTime)
-    .attr('x2', x(cf.length()))
-    .attr('y2', function (d) { return y(d) })
 
 
 // add points of choices
 svg.append('g')
-    .attr('class', 'choice-points')
+    .attr('class', 'choice-notes')
   .selectAll('circle')
     .data(cf.choices())
   .enter().append('circle')
@@ -131,6 +113,25 @@ svg.append('g')
     .attr('cx', x(cf.length()))
     .attr('cy', function (d) { return y(d) })
     .attr('r', choicePointRadius)
+
+/*
+    // add paths to next note choices
+
+    svg.append('g')
+        .attr('class', 'choice-paths')
+      .selectAll('line')
+        .data(cf.choices())
+      .enter().append('line')
+        .attr('x1', x(cf.length() - 1))
+        .attr('y1', y(cf.lastNote()))
+        .attr('x2', x(cf.length() - 1))
+        .attr('y2', y(cf.lastNote()))
+        .attr('stroke-width', pathWidth)
+        .attr('stroke-opacity', 0.15)
+        .transition()
+        .duration(animationTime)
+        .attr('x2', x(cf.length()))
+        .attr('y2', function (d) { return y(d) })
 */
 function redraw (svg) {
   // before updating scales, use old scale to new point and extend path

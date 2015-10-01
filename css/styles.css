@@ -15,14 +15,18 @@
   fill: none;
   stroke: steelblue;
   stroke-linecap: round;
-  stroke-opacity: 0.6;
+  stroke-opacity: 1;
 }
 
 /* the circles showing notes chosen so far */
-.construction-points circle {
-  fill: steelblue;
-  fill-opacity: 1;
+.construction-notes rect {
+  fill: #c6dbef;
+  fill-opacity: 0.4;
+  stroke: steelblue;
   stroke-width: 0;
+  stroke-opacity: 1;
+  rx: 7;
+  ry: 7;
 }
 
 /*******************************************
@@ -37,7 +41,7 @@
 }
 
 /* the circles showing next note choices */
-.choice-points circle {
+.choice-notes rect {
   fill: steelblue;
   fill-opacity: 1;
   stroke-width: 0;
