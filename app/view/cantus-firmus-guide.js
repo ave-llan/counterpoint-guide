@@ -16,7 +16,7 @@ var createCFfromDOM = function () {
 }
 
 var cf = createCFfromDOM()
-'E4 F4 C4 D4 F4 E4 G4 Bb3 C4 F4 E4 D4'.split(' ').forEach(cf.addNote)
+//'E4 F4 C4 D4 F4 E4 G4 Bb3 C4 F4 E4 D4'.split(' ').forEach(cf.addNote)
 
 var margin = {top: 20, right: 10, bottom: 20, left: 10}
 var width = 600 - margin.left - margin.right
@@ -27,6 +27,7 @@ var constructionPointRadius = 15
 var choicePointRadius = 12
 var pathWidth = 1
 var animationTime = 500
+var choiceAnimationTime = 250
 var choicePadding = 0.16
 
 var xDomain = function () {
@@ -126,9 +127,9 @@ function appendChoices (svg) {
       .attr('animating', 'yes') // set to 'no' when finished moving
       .transition()
       .delay(function (d, i) {
-        return i * (animationTime / 10)
+        return animationTime + i * (choiceAnimationTime / 10)
       })
-      .duration(1000)
+      //.duration(animationTime)
       .attr('fill-opacity', 0.25)
       /*
       .on('click', function (d, i) {
@@ -140,7 +141,7 @@ function appendChoices (svg) {
       })
       */
       .transition()
-      .duration(animationTime)
+      .duration(choiceAnimationTime)
       .attr('x', x(cf.length()))
       .attr('y', function (d) { return y(d) + choiceBoxYPadding() / 2 })
       .attr('width', x.rangeBand())
@@ -213,7 +214,6 @@ function redraw (svg) {
       .attr('y', y(cf.lastNote()))
       .attr('width', x.rangeBand())
       .attr('height', y.rangeBand())
-      .transition()
       .attr('fill-opacity', 0)
   oldChoicePoints.transition()
       .delay(animationTime)
@@ -251,6 +251,8 @@ function redraw (svg) {
       .text(function (d) { return Pitch(d.val).pitchClass() })
       .attr('sciPitch', function (d) { return d.val })
       .attr('y', function (d) { return y(d.val) + y.rangeBand() / 2 })
+
+  appendChoices(svg)
 /*
 
 
