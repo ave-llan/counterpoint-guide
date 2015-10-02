@@ -212,6 +212,13 @@ function redraw (svg) {
       .attr('width', x.rangeBand())
       .attr('height', y.rangeBand())
 
+  // update construction line with new scales
+  svg.select('#construction-line')
+      .datum(cf.construction())
+      .transition()
+      .duration(animationTime)
+      .attr('d', constructionLine)
+
   // recalculate y axis text
   var yText = svg.select('.y-axis-text').selectAll('text')
       .data(cf.domain().map(function (sciPitch) {
@@ -261,13 +268,6 @@ function redraw (svg) {
       .attr('r', constructionPointRadius) // will grow the new point
 
 
-  // update construction line with new scales
-  constructionPath
-      .datum(cf.construction())
-      .transition()
-      .duration(animationTime)
-      .attr('d', constructionLine)
-
   // remove old choices after animating into pickedNote
   var pickedNote = cf.construction()[cf.length()-1]
   var oldChoicePoints = svg.select('.choice-points')
@@ -291,22 +291,5 @@ function redraw (svg) {
       .attr('r', choicePointRadius)
 
 
-  // recalculate y axis text
-  var yText = svg.select('.y-axis-text').selectAll('text')
-      .data(cf.domain().map(function (sciPitch) {
-        return { val: sciPitch }
-      }), function (d) { return d.val })
-  // remove unused notes in domain
-  yText.exit()
-      .transition()
-      .duration(250)
-      .attr('x', -50)
-      .remove()
-  // update remaining
-  yText.transition()
-      .duration(animationTime)
-      .text(function (d) { return Pitch(d.val).pitchClass() })
-      .attr('sciPitch', function (d) { return d.val })
-      .attr('y', function (d) { return y(d.val) })
       */
 }
