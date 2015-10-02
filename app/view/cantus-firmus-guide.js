@@ -212,6 +212,10 @@ function redraw (svg) {
   var constructionPoints = svg.select('.construction-notes').selectAll('rect')
       .data(cf.construction())
 
+  var chosenLine = svg.select('#construction-line')
+      .datum(cf.construction())
+      .attr('d', constructionLine)
+
   // add new note disguised as choice note, transition to construction note
   constructionPoints.enter().append('rect')
       .attr('x', function (d, i) { return x(i) })
@@ -223,6 +227,7 @@ function redraw (svg) {
       .attr('fill', '#c6dbef')
       .attr('animating', 'yes')
       .on('click', deleteToHere)
+
 
   // update scale domains
   y.domain(cf.domain())
@@ -266,9 +271,7 @@ function redraw (svg) {
       })
 
   // update construction line with new scales
-  svg.select('#construction-line')
-      .datum(cf.construction())
-      .transition()
+  chosenLine.transition()
       .duration(animationTime)
       .attr('d', constructionLine)
 
