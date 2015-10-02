@@ -26,8 +26,8 @@ var nextChoiceDepth = 2
 var constructionPointRadius = 15
 var choicePointRadius = 12
 var pathWidth = 1
-var animationTime = 500
-var choiceAnimationTime = 250
+var animationTime = 300
+var choiceAnimationTime = 400
 var choicePadding = 0.16
 
 var xDomain = function () {
@@ -170,14 +170,12 @@ function appendChoices (svg) {
                   })
             })
             .on('click', function (d) {
-              console.log(d)
               // remove both event listeners
               d3.select('.choice-notes').selectAll('rect')
                   .on('click', null)
                   .on('mouseover', null)
-              // select this note in the cf
+
               cf.addNote(d)
-              // redraw
               redraw(svg)
             })
       })
