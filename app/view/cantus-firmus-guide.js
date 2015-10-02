@@ -26,8 +26,8 @@ var nextChoiceDepth = 2
 var constructionPointRadius = 15
 var choicePointRadius = 12
 var pathWidth = 1
-var animationTime = 3000
-var choiceAnimationTime = 4000
+var animationTime = 300
+var choiceAnimationTime = 400
 var choicePadding = 0.16
 
 var xDomain = function () {
@@ -99,11 +99,15 @@ svg.append('g')
     .attr('height', y.rangeBand())
     .attr('rx', 7)
     .attr('rx', 7)
+    .attr('animating', 'no')
     .on('click', deleteToHere)
 
 function deleteToHere (d, i) {
-  // i is position in construction to delete up to
-  if (i !== cf.length() - 1) {
+  // do not execute if currently executing or if this is the current last note
+  if (d3.select(this).attr('animating') === 'no' && i !== cf.length() - 1) {
+    // set construction points to animating
+    d3.select('.construction-notes').selectAll('rect')
+        .attr('animating', 'yes')
     // disable choice mouse events
     d3.select('.choice-notes').selectAll('rect')
         .on('click', null)
@@ -219,6 +223,7 @@ function redraw (svg) {
       .attr('height', y.rangeBand() - choiceBoxYPadding())
       .attr('rx', 7)
       .attr('rx', 7)
+      .attr('animating', 'yes')
       .on('click', deleteToHere)
 
   // update scale domains
@@ -255,6 +260,11 @@ function redraw (svg) {
       .attr('y', function (d) { return y(d)})
       .attr('width', x.rangeBand())
       .attr('height', y.rangeBand())
+      .each('end', function (d, i) {
+        console.log('inside each for ', i)
+        d3.select(this)
+            .attr('animating', 'no')
+      })
 
   // update construction line with new scales
   svg.select('#construction-line')
@@ -296,46 +306,4 @@ function redraw (svg) {
       .attr('x', 0)
 
   appendChoices(svg)
-/*
-
-
-  // add new choices at point of this choice
-  var newCircles = svg.append('g')
-      .attr('class', 'choice-points')
-    .selectAll('circle')
-      .data(cf.choices())
-    .enter().append('circle')
-      .attr('cx', x(cf.length() - 1))
-      .attr('cy', y(cf.lastNote()))
-      .attr('r', choicePointRadius / 2)
-      .on('click', function (d, i) {
-        cf.addNote(d)
-        redraw(svg)
-      })
-
-
-  // SCALES ASSUMED TO BE UPDATED AFTER THIS POINT
-
-
-  // update all construction points with new scales
-  constructionPoints.transition()
-      .duration(animationTime)
-      .attr('cx', function (d, i) { return x(i) })
-      .attr('cy', function (d) { return y(d) })
-      .attr('r', constructionPointRadius) // will grow the new point
-
-
-
-
-
-  // move choice notes out using new scales
-  newCircles.transition()
-      // .delay(300)
-      .duration(animationTime)
-      .attr('cx', x(cf.length()))
-      .attr('cy', function (d) { return y(d) })
-      .attr('r', choicePointRadius)
-
-
-      */
 }

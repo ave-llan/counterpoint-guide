@@ -69,16 +69,15 @@ var CantusFirmusMaker = function (firstNote, mode, maxRange, maxLength) {
   }
 
   /**
-   * returns an array of pitch strings representing the domain
-   * of choices given the current construction and maxRange
+   * looks at current choices and current construction and returns an array
+   * of all pitch strings in the key from lowest to highest
    * @returns {string[]}
    */
   this.domain = function () {
-    var usedNotes = sortPitches(this.construction())
+    var usedNotes = sortPitches(this.construction().concat(this.choices()))
     var lo = usedNotes[0]
     var hi = usedNotes[usedNotes.length - 1]
-    var pitches = key.range(key.plusInterval(hi, -1 * maxRange),
-                              key.plusInterval(lo, maxRange))
+    var pitches = key.range(lo, hi)
     return pitches.map(function (pitch) {
       return pitch.sciPitch()
     })
