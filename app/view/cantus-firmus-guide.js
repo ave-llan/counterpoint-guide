@@ -26,7 +26,7 @@ var nextChoiceDepth = 2
 var constructionPointRadius = 15
 var choicePointRadius = 12
 var pathWidth = 1
-var animationTime = 5000
+var animationTime = 1000
 var choicePadding = 0.16
 
 var xDomain = function () {
@@ -128,7 +128,7 @@ svg.append('g')
       return i * (animationTime / 10)
     })
     .duration(1000)
-    .attr('fill-opacity', 0.4)
+    .attr('fill-opacity', 0.25)
     /*
     .on('click', function (d, i) {
       // remove all choice-points 'on-click listeners'
@@ -138,25 +138,33 @@ svg.append('g')
       redraw(svg)
     })
     */
+    .transition()
+    .duration(animationTime)
+    .attr('x', x(cf.length()))
+    .attr('y', function (d) { return y(d) + choiceBoxYPadding() / 2 })
+    .attr('width', x.rangeBand())
+    .attr('height', y.rangeBand() - choiceBoxYPadding())
     .each('end', function () {
       d3.select(this)
           .on('mouseover', function () {
+            var selectedNote = d3.select(this).datum()
+            // move construction line onto this choice
             d3.select('#construction-line')
-                .datum(cf.construction().concat(d3.select(this).data()))
+                .datum(cf.construction().concat(selectedNote))
                 .transition()
                 .duration(300)
                 .attr('d', constructionLine)
+            d3.select('.choice-notes').selectAll('rect')
+                .transition()
+                .duration(300)
+                .attr('fill-opacity', function (d) {
+                  return (d === selectedNote) ? 0.5 : 0.25
+                })
           })
-          .transition()
-          .duration(animationTime)
-          .attr('x', x(cf.length()))
-          .attr('y', function (d) { return y(d) + choiceBoxYPadding() / 2 })
-          .attr('width', x.rangeBand())
-          .attr('height', y.rangeBand() - choiceBoxYPadding())
     })
+/*
 
-
-
+*/
 /*
     // add paths to next note choices
 
