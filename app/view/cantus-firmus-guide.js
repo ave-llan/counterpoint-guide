@@ -16,7 +16,7 @@ var createCFfromDOM = function () {
 }
 
 var cf = createCFfromDOM()
-'E4 F4 C4 D4 F4 E4 G4 Bb3 C4'.split(' ').forEach(cf.addNote)
+'E4 F4 C4 D4 F4 E4 G4 Bb3 C4 F4 E4 D4'.split(' ').forEach(cf.addNote)
 
 var margin = {top: 20, right: 10, bottom: 20, left: 10}
 var width = 600 - margin.left - margin.right
@@ -26,7 +26,7 @@ var nextChoiceDepth = 2
 var constructionPointRadius = 15
 var choicePointRadius = 12
 var pathWidth = 1
-var animationTime = 500
+var animationTime = 5000
 var choicePadding = 0.16
 
 var xDomain = function () {
@@ -96,6 +96,8 @@ svg.append('g')
     .attr('y', function (d) { return y(d) })
     .attr('width', x.rangeBand())
     .attr('height', y.rangeBand())
+    .attr('rx', 7)
+    .attr('rx', 7)
 
 
 // add points of choices
@@ -119,6 +121,8 @@ svg.append('g')
       return (cf.construction().lastIndexOf(d) === -1) ? 0 : y.rangeBand()
     })
     .attr('fill-opacity', 0)
+    .attr('rx', 7)
+    .attr('rx', 7)
     .transition()
     .delay(function (d, i) {
       return i * (animationTime / 10)
