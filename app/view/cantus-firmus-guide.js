@@ -19,16 +19,15 @@ var cf = createCFfromDOM()
 //'E4 F4 C4 D4 F4 E4 G4 Bb3 C4 F4 E4 D4'.split(' ').forEach(cf.addNote)
 
 var margin = {top: 20, right: 10, bottom: 20, left: 10}
-var width = 600 - margin.left - margin.right
+var width = 800 - margin.left - margin.right
 var height = 450 - margin.top - margin.bottom
-var yAxisWidth = 44
-var nextChoiceDepth = 2
-var constructionPointRadius = 15
-var choicePointRadius = 12
-var pathWidth = 1
-var animationTime = 300
-var choiceAnimationTime = 400
-var choicePadding = 0.16
+var yAxisWidth = 44                  // space reserved for note names on y axis
+var pathWidth = 1                    // width of construction line
+var animationTime = 300              // animation time to re-scale
+var choiceAnimationTime = 400        // animatino time for choices to appear
+var choicePadding = 0.16             //  reserve 16% of vertical space for padding
+var unfinishedNoteColor = '#c6dbef'  // light blue
+var finishedNoteColor = '#2ca02c'    // green
 
 var xDomain = function () {
   var minAllowed = d3.max([8, cf.length() + 2])
@@ -99,7 +98,7 @@ svg.append('g')
     .attr('height', y.rangeBand())
     .attr('rx', 7)
     .attr('rx', 7)
-    .attr('fill', function () { return cf.isValid() ? '#2ca02c' : '#c6dbef' })
+    .attr('fill', function () { return cf.isValid() ? finishedNoteColor : unfinishedNoteColor })
     .attr('animating', 'no')
     .on('click', deleteToHere)
 
@@ -259,7 +258,7 @@ function redraw (svg) {
       .attr('y', function (d) { return y(d)})
       .attr('width', x.rangeBand())
       .attr('height', y.rangeBand())
-      .attr('fill', function () { return cf.isValid() ? '#2ca02c' : '#c6dbef' })
+      .attr('fill', function () { return cf.isValid() ? finishedNoteColor : unfinishedNoteColor })
       .each('end', function () {
         d3.select(this)
             .attr('animating', 'no')
