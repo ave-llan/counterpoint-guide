@@ -194,9 +194,9 @@ function redraw (svg) {
   // add new note disguised as choice note, transition to construction note
   constructionPoints.enter().append('rect')
       .attr('x', function (d, i) { return x(i) })
-      .attr('y', function (d) { return y(d) })
+      .attr('y', function (d) { return y(d) + choiceBoxYPadding() / 2 })
       .attr('width', x.rangeBand())
-      .attr('height', y.rangeBand())
+      .attr('height', y.rangeBand() - choiceBoxYPadding())
       .attr('rx', 7)
       .attr('rx', 7)
 
@@ -204,6 +204,31 @@ function redraw (svg) {
   y.domain(cf.domain())
   x.domain(d3.range(d3.max([8, cf.length() + 1])))
 
+  // move construction to new position using updated scales
+  constructionPoints.transition()
+      .duration(animationTime)
+      .attr('x', function (d, i) { return x(i) })
+      .attr('y', function (d) { return y(d)})
+      .attr('width', x.rangeBand())
+      .attr('height', y.rangeBand())
+
+  // recalculate y axis text
+  var yText = svg.select('.y-axis-text').selectAll('text')
+      .data(cf.domain().map(function (sciPitch) {
+        return { val: sciPitch }
+      }), function (d) { return d.val })
+  // remove unused notes in domain
+  yText.exit()
+      .transition()
+      .duration(250)
+      .attr('x', -50)
+      .remove()
+  // update remaining
+  yText.transition()
+      .duration(animationTime)
+      .text(function (d) { return Pitch(d.val).pitchClass() })
+      .attr('sciPitch', function (d) { return d.val })
+      .attr('y', function (d) { return y(d.val) + y.rangeBand() / 2 })
 /*
   // extend construction to choice before
   var constructionPath = svg.select('#construction-line')
