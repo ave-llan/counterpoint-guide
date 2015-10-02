@@ -140,6 +140,8 @@ function appendChoices (svg) {
       .attr('animating', 'yes') // set to 'no' when finished moving
       .transition()
       .delay(function (d, i) {
+        return animationTime + // delay until scaling animation has finished
+               Pitch(d).intervalSize(cf.lastNote()) * choiceAnimationTime / 6
         return animationTime + Math.floor(i / 2) * (choiceAnimationTime / 3)
       })
       .attr('fill-opacity', 0.25)

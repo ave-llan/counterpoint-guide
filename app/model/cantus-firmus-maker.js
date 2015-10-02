@@ -50,11 +50,7 @@ var CantusFirmusMaker = function (firstNote, mode, maxRange, maxLength) {
   }
 
   this.choices = function () {
-    // sort by distance from last note in cf
-    var lastNote = new Pitch(this.lastNote())
-    return cf.choices().sort(function (a, b) {
-      return lastNote.intervalSize(a) - lastNote.intervalSize(b)
-    })
+    return cf.choices()
   }
 
   this.addNote = function (note) {
