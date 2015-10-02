@@ -27,7 +27,7 @@ var constructionPointRadius = 15
 var choicePointRadius = 12
 var pathWidth = 1
 var animationTime = 300
-var choiceAnimationTime = 400
+var choiceAnimationTime = 4000
 var choicePadding = 0.16
 
 var xDomain = function () {
@@ -81,7 +81,7 @@ svg.append('g')
 
 // add path of current cf construction
 svg.append('path')
-    .datum(cf.construction().concat(cf.lastNote()))
+    .datum(cf.construction())
     .attr('id', 'construction-line')
     .attr('d', constructionLine)
     .attr('stroke-width', pathWidth)
@@ -105,7 +105,7 @@ function appendChoices (svg) {
   svg.append('g')
       .attr('class', 'choice-notes')
     .selectAll('rect')
-      .data(sortPitches(cf.choices()))
+      .data(cf.choices())
     .enter().append('rect')
       .attr('x', function (d) {
         var lastIndex = cf.construction().lastIndexOf(d)
@@ -127,7 +127,7 @@ function appendChoices (svg) {
       .attr('animating', 'yes') // set to 'no' when finished moving
       .transition()
       .delay(function (d, i) {
-        return animationTime + i * (choiceAnimationTime / 10)
+        return animationTime + Math.floor(i / 2) * (choiceAnimationTime / 5)
       })
       //.duration(animationTime)
       .attr('fill-opacity', 0.25)
@@ -176,9 +176,23 @@ function appendChoices (svg) {
                   .on('mouseover', null)
 
               cf.addNote(d)
+              if (cf.isValid()) {
+                console.log('CF could be considered complete!')
+              }
               redraw(svg)
             })
       })
+}
+
+function pathTransition(path) {
+  path.transition()
+      .duration(choiceAnimationTime)
+      .attrTween('stroke-dasharray', tweenDash)
+      .each('end', function() { d3.select(this).call(transition) })
+}
+
+function tweenDash() {
+  var oldLength
 }
 
 appendChoices(svg)

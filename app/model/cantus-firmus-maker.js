@@ -1,5 +1,6 @@
 var CantusFirmus = require('counterpoint').CantusFirmus
 var Key = require('nmusic').Key
+var Pitch = require('nmusic').Pitch
 var sortPitches = require('nmusic').sortPitches
 var deepcopy = require('deepcopy')
 
@@ -48,8 +49,12 @@ var CantusFirmusMaker = function (firstNote, mode, maxRange, maxLength) {
     return this.construction()[this.length() - 1]
   }
 
-  this.choices = function (nDeep) {
-    return cf.choices(nDeep || 1)
+  this.choices = function () {
+    // sort by distance from last note in cf
+    var lastNote = new Pitch(this.lastNote())
+    return cf.choices().sort(function (a, b) {
+      return lastNote.intervalSize(a) - lastNote.intervalSize(b)
+    })
   }
 
   this.addNote = function (note) {
