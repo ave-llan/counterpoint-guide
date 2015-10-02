@@ -68,6 +68,14 @@ var CantusFirmusMaker = function (firstNote, mode, maxRange, maxLength) {
     return cf.isValid()
   }
 
+  this.highNote = function () {
+    return sortPitches(this.construction())[this.length() - 1]
+  }
+
+  this.lowNote = function () {
+    return sortPitches(this.construction())[0]
+  }
+
   /**
    * looks at current choices and current construction and returns an array
    * of all pitch strings in the key from lowest to highest
