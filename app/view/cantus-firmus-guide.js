@@ -99,6 +99,7 @@ svg.append('g')
     .attr('height', y.rangeBand())
     .attr('rx', 7)
     .attr('rx', 7)
+    .attr('fill', function () { return cf.isValid() ? '#2ca02c' : '#c6dbef' })
     .attr('animating', 'no')
     .on('click', deleteToHere)
 
@@ -187,9 +188,6 @@ function appendChoices (svg) {
                   .on('mouseover', null)
 
               cf.addNote(d)
-              if (cf.isValid()) {
-                console.log('CF could be considered complete!')
-              }
               redraw(svg)
             })
       })
@@ -223,6 +221,7 @@ function redraw (svg) {
       .attr('height', y.rangeBand() - choiceBoxYPadding())
       .attr('rx', 7)
       .attr('rx', 7)
+      .attr('fill', '#c6dbef')
       .attr('animating', 'yes')
       .on('click', deleteToHere)
 
@@ -260,6 +259,7 @@ function redraw (svg) {
       .attr('y', function (d) { return y(d)})
       .attr('width', x.rangeBand())
       .attr('height', y.rangeBand())
+      .attr('fill', function () { return cf.isValid() ? '#2ca02c' : '#c6dbef' })
       .each('end', function () {
         d3.select(this)
             .attr('animating', 'no')
