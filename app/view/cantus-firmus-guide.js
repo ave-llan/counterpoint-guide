@@ -26,7 +26,7 @@ var nextChoiceDepth = 2
 var constructionPointRadius = 15
 var choicePointRadius = 12
 var pathWidth = 1
-var animationTime = 750
+var animationTime = 500
 var choicePadding = 0.16
 
 var xDomain = function () {
@@ -99,136 +99,116 @@ svg.append('g')
     .attr('rx', 7)
     .attr('rx', 7)
 
-
+function appendChoices (svg) {
 // add points of choices
-svg.append('g')
-    .attr('class', 'choice-notes')
-  .selectAll('rect')
-    .data(sortPitches(cf.choices()))
-  .enter().append('rect')
-    .attr('x', function (d) {
-      var lastIndex = cf.construction().lastIndexOf(d)
-      return (lastIndex === -1) ? yAxisWidth : x(lastIndex)
-    })
-    .attr('y', function (d) {
-      return (cf.construction().lastIndexOf(d) === -1) ? y(d) + y.rangeBand() / 2
-                                                       : y(d)
-    })
-    .attr('width', function (d) {
-      return (cf.construction().lastIndexOf(d) === -1) ? 0 : x.rangeBand()
-    })
-    .attr('height', function (d) {
-      return (cf.construction().lastIndexOf(d) === -1) ? 0 : y.rangeBand()
-    })
-    .attr('fill-opacity', 0)
-    .attr('rx', 7)
-    .attr('rx', 7)
-    .attr('animating', 'yes') // set to 'no' when finished moving
-    .transition()
-    .delay(function (d, i) {
-      return i * (animationTime / 10)
-    })
-    .duration(1000)
-    .attr('fill-opacity', 0.25)
-    /*
-    .on('click', function (d, i) {
-      // remove all choice-points 'on-click listeners'
-      svg.select('.choice-points').selectAll('circle')
-          .on('click', null)
-      cf.addNote(d)
-      redraw(svg)
-    })
-    */
-    .transition()
-    .duration(animationTime)
-    .attr('x', x(cf.length()))
-    .attr('y', function (d) { return y(d) + choiceBoxYPadding() / 2 })
-    .attr('width', x.rangeBand())
-    .attr('height', y.rangeBand() - choiceBoxYPadding())
-    .each('end', function () {
-      d3.select(this)
-          .attr('animating', 'no')
-          .on('mouseover', function (d) {
-            var selectedNote = d
-            // move construction line onto this choice
-            d3.select('#construction-line')
-                .datum(cf.construction().concat(selectedNote))
-                .transition()
-                .duration(300)
-                .attr('d', constructionLine)
-            d3.select('.choice-notes').selectAll('rect')
-                .each(function () {
-                  var selection = d3.select(this)
-                  if (selection.attr('animating') == 'no') {
-                    selection.transition()
-                        .duration(300)
-                        .attr('fill-opacity', function (d) {
-                          return (d === selectedNote) ? 0.5 : 0.25
-                    })
-                  }
-                })
-          })
-          .on('click', function (d) {
-            console.log(d)
-            // remove all event listeners
-            d3.select('.choice-notes').selectAll('rect')
-                .on('click', null)
-          })
-    })
-/*
+  svg.append('g')
+      .attr('class', 'choice-notes')
+    .selectAll('rect')
+      .data(sortPitches(cf.choices()))
+    .enter().append('rect')
+      .attr('x', function (d) {
+        var lastIndex = cf.construction().lastIndexOf(d)
+        return (lastIndex === -1) ? yAxisWidth : x(lastIndex)
+      })
+      .attr('y', function (d) {
+        return (cf.construction().lastIndexOf(d) === -1) ? y(d) + y.rangeBand() / 2
+                                                         : y(d)
+      })
+      .attr('width', function (d) {
+        return (cf.construction().lastIndexOf(d) === -1) ? 0 : x.rangeBand()
+      })
+      .attr('height', function (d) {
+        return (cf.construction().lastIndexOf(d) === -1) ? 0 : y.rangeBand()
+      })
+      .attr('fill-opacity', 0)
+      .attr('rx', 7)
+      .attr('rx', 7)
+      .attr('animating', 'yes') // set to 'no' when finished moving
+      .transition()
+      .delay(function (d, i) {
+        return i * (animationTime / 10)
+      })
+      .duration(1000)
+      .attr('fill-opacity', 0.25)
+      /*
+      .on('click', function (d, i) {
+        // remove all choice-points 'on-click listeners'
+        svg.select('.choice-points').selectAll('circle')
+            .on('click', null)
+        cf.addNote(d)
+        redraw(svg)
+      })
+      */
+      .transition()
+      .duration(animationTime)
+      .attr('x', x(cf.length()))
+      .attr('y', function (d) { return y(d) + choiceBoxYPadding() / 2 })
+      .attr('width', x.rangeBand())
+      .attr('height', y.rangeBand() - choiceBoxYPadding())
+      .each('end', function () {
+        d3.select(this)
+            .attr('animating', 'no')
+            .on('mouseover', function (d) {
+              var selectedNote = d
+              // move construction line onto this choice
+              d3.select('#construction-line')
+                  .datum(cf.construction().concat(selectedNote))
+                  .transition()
+                  .duration(300)
+                  .attr('d', constructionLine)
+              d3.select('.choice-notes').selectAll('rect')
+                  .each(function () {
+                    var selection = d3.select(this)
+                    if (selection.attr('animating') == 'no') {
+                      selection.transition()
+                          .duration(300)
+                          .attr('fill-opacity', function (d) {
+                            return (d === selectedNote) ? 0.5 : 0.25
+                      })
+                    }
+                  })
+            })
+            .on('click', function (d) {
+              console.log(d)
+              // remove both event listeners
+              d3.select('.choice-notes').selectAll('rect')
+                  .on('click', null)
+                  .on('mouseover', null)
+              // select this note in the cf
+              cf.addNote(d)
+              // redraw
+              redraw(svg)
+            })
+      })
+}
 
-*/
-/*
-    // add paths to next note choices
+appendChoices(svg)
 
-    svg.append('g')
-        .attr('class', 'choice-paths')
-      .selectAll('line')
-        .data(cf.choices())
-      .enter().append('line')
-        .attr('x1', x(cf.length() - 1))
-        .attr('y1', y(cf.lastNote()))
-        .attr('x2', x(cf.length() - 1))
-        .attr('y2', y(cf.lastNote()))
-        .attr('stroke-width', pathWidth)
-        .attr('stroke-opacity', 0.15)
-        .transition()
-        .duration(animationTime)
-        .attr('x2', x(cf.length()))
-        .attr('y2', function (d) { return y(d) })
-*/
+
 function redraw (svg) {
   // before updating scales, use old scale to new point and extend path
   // create note in choice position for animation
-  var constructionPoints = svg.select('.construction-points').selectAll('circle')
+  var constructionPoints = svg.select('.construction-notes').selectAll('rect')
       .data(cf.construction())
 
   // add new note disguised as choice note, transition to construction note
-  constructionPoints.enter().append('circle')
-      .attr('cx', function (d, i) { return x(i) })
-      .attr('cy', function (d) { return y(d) })
-      .attr('r', choicePointRadius)
+  constructionPoints.enter().append('rect')
+      .attr('x', function (d, i) { return x(i) })
+      .attr('y', function (d) { return y(d) })
+      .attr('width', x.rangeBand())
+      .attr('height', y.rangeBand())
+      .attr('rx', 7)
+      .attr('rx', 7)
 
+  // update scale domains
+  y.domain(cf.domain())
+  x.domain(d3.range(d3.max([8, cf.length() + 1])))
+
+/*
   // extend construction to choice before
   var constructionPath = svg.select('#construction-line')
       .datum(cf.construction())
       .attr('d', constructionLine)
-
-  /*
-  // add new paths at point of this choice
-  var newChoicePaths = svg.append('g')
-      .attr('class', 'choice-paths')
-    .selectAll('line')
-      .data(cf.choices())
-    .enter().append('line')
-      .attr('x1', x(cf.length() - 1))
-      .attr('y1', y(cf.lastNote()))
-      .attr('x2', x(cf.length() - 1))
-      .attr('y2', y(cf.lastNote()))
-      .attr('stroke-width', pathWidth)
-      .attr('stroke-opacity', 0.3)
-  */
-
 
   // add new choices at point of this choice
   var newCircles = svg.append('g')
@@ -244,14 +224,8 @@ function redraw (svg) {
         redraw(svg)
       })
 
-  // update scales
-  y = d3.scale.ordinal()
-    .domain(cf.domain())
-    .rangeRoundBands([height, 0], 0.05)
 
-  x = d3.scale.ordinal()
-    .domain(d3.range(d3.max([8, cf.length() + 2])))
-    .rangeRoundBands([yAxisWidth, width], 0.05)
+  // SCALES ASSUMED TO BE UPDATED AFTER THIS POINT
 
 
   // update all construction points with new scales
@@ -282,30 +256,7 @@ function redraw (svg) {
       .delay(animationTime)
       .remove()
 
-  /*
-  // remove old choice paths
-  var penultimateNote = cf.construction()[cf.length() - 2]
-  var oldChoicePaths = svg.select('.choice-paths')
-  oldChoicePaths.selectAll('line')
-      .transition()
-      .duration(animationTime)
-      .attr('x1', x(cf.length() - 2))
-      .attr('y1', y(penultimateNote))
-      .attr('x2', x(cf.length() - 1))
-      .attr('y2', y(cf.lastNote()))
-      .attr('stroke-opacity', 0)
-  oldChoicePaths.transition()      // remove the whole group
-      .delay(animationTime)
-      .remove()
 
-  // move choice paths to choices using new scales
-  newChoicePaths.transition()
-    .duration(animationTime)
-    .attr('x1', x(cf.length() - 1))
-    .attr('y1', y(cf.lastNote()))
-    .attr('x2', x(cf.length()))
-    .attr('y2', function (d) { return y(d) })
-  */
   // move choice notes out using new scales
   newCircles.transition()
       // .delay(300)
@@ -332,4 +283,5 @@ function redraw (svg) {
       .text(function (d) { return Pitch(d.val).pitchClass() })
       .attr('sciPitch', function (d) { return d.val })
       .attr('y', function (d) { return y(d.val) })
+      */
 }
