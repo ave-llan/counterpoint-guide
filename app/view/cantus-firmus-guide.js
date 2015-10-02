@@ -27,7 +27,7 @@ var constructionPointRadius = 15
 var choicePointRadius = 12
 var pathWidth = 1
 var animationTime = 300
-var choiceAnimationTime = 4000
+var choiceAnimationTime = 400
 var choicePadding = 0.16
 
 var xDomain = function () {
@@ -127,7 +127,7 @@ function appendChoices (svg) {
       .attr('animating', 'yes') // set to 'no' when finished moving
       .transition()
       .delay(function (d, i) {
-        return animationTime + Math.floor(i / 2) * (choiceAnimationTime / 5)
+        return animationTime + Math.floor(i / 2) * (choiceAnimationTime / 3)
       })
       //.duration(animationTime)
       .attr('fill-opacity', 0.25)
