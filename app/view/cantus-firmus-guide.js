@@ -146,9 +146,9 @@ function appendChoices (svg) {
       .attr('rx', 7)
       .attr('animating', 'yes') // set to 'no' when finished moving
       .transition()
-      .delay(function (d, i) {
+      //.duration(250)            // 250 is the default, just noting it here
+      .delay(function (d) {
         return Pitch(d).intervalSize(cf.lastNote()) * choiceAnimationTime / 6
-        return animationTime + Math.floor(i / 2) * (choiceAnimationTime / 3)
       })
       .attr('fill-opacity', 0.25)
       .transition()
@@ -260,8 +260,7 @@ function redraw (svg) {
       .attr('y', function (d) { return y(d)})
       .attr('width', x.rangeBand())
       .attr('height', y.rangeBand())
-      .each('end', function (d, i) {
-        console.log('inside each for ', i)
+      .each('end', function () {
         d3.select(this)
             .attr('animating', 'no')
       })
@@ -281,7 +280,13 @@ function redraw (svg) {
   // remove unused notes in domain
   yText.exit()
       .transition()
-      .duration(250)
+      .delay(function (d) {
+        var thisNote = Pitch(d.val)
+        // notes closer to current range exit first to get out of the way
+        return (Math.min(thisNote.intervalSize(cf.highNote()),
+                        thisNote.intervalSize(cf.lowNote())) - 2) * animationTime / 10
+      })
+      .duration(animationTime/3)
       .attr('x', -50)
       .remove()
   // update remaining
@@ -299,8 +304,8 @@ function redraw (svg) {
       .attr('x', -50)
       .attr('y', function (d) { return y(d.val) + y.rangeBand() / 2 })
       .transition()
-      .delay(function (d) {
-        return (Pitch(d.val).intervalSize(cf.construction()[0]) - 1) * animationTime / 10
+      .delay(function (d) { // try to match incoming choice notes
+        return 350 + (Pitch(d.val).intervalSize(cf.lastNote()) * choiceAnimationTime / 6)
       })
       .duration(animationTime)
       .attr('x', 0)
