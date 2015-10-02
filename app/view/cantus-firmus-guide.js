@@ -26,8 +26,8 @@ var nextChoiceDepth = 2
 var constructionPointRadius = 15
 var choicePointRadius = 12
 var pathWidth = 1
-var animationTime = 300
-var choiceAnimationTime = 400
+var animationTime = 3000
+var choiceAnimationTime = 4000
 var choicePadding = 0.16
 
 var xDomain = function () {
@@ -102,8 +102,12 @@ svg.append('g')
     .on('click', deleteToHere)
 
 function deleteToHere (d, i) {
-  // i is position in construction to delete through
+  // i is position in construction to delete up to
   if (i !== cf.length() - 1) {
+    // disable choice mouse events
+    d3.select('.choice-notes').selectAll('rect')
+        .on('click', null)
+        .on('mouseover', null)
     // pop until
     d3.range(cf.length() - 1 - i).forEach(function () {
       cf.pop()
