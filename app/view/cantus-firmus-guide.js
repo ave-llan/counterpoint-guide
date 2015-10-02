@@ -204,6 +204,21 @@ function redraw (svg) {
   y.domain(cf.domain())
   x.domain(d3.range(d3.max([8, cf.length() + 1])))
 
+  // remove old choices after animating into pickedNote
+  var oldChoicePoints = svg.select('.choice-notes')
+  oldChoicePoints.selectAll('rect')
+      .transition()
+      .duration(animationTime)
+      .attr('x', x(cf.length() - 1))
+      .attr('y', y(cf.lastNote()))
+      .attr('width', x.rangeBand())
+      .attr('height', y.rangeBand())
+      .transition()
+      .attr('fill-opacity', 0)
+  oldChoicePoints.transition()
+      .delay(animationTime)
+      .remove()
+
   // move construction to new position using updated scales
   constructionPoints.transition()
       .duration(animationTime)
@@ -237,10 +252,7 @@ function redraw (svg) {
       .attr('sciPitch', function (d) { return d.val })
       .attr('y', function (d) { return y(d.val) + y.rangeBand() / 2 })
 /*
-  // extend construction to choice before
-  var constructionPath = svg.select('#construction-line')
-      .datum(cf.construction())
-      .attr('d', constructionLine)
+
 
   // add new choices at point of this choice
   var newCircles = svg.append('g')
@@ -268,18 +280,7 @@ function redraw (svg) {
       .attr('r', constructionPointRadius) // will grow the new point
 
 
-  // remove old choices after animating into pickedNote
-  var pickedNote = cf.construction()[cf.length()-1]
-  var oldChoicePoints = svg.select('.choice-points')
-  oldChoicePoints.selectAll('circle')
-      .transition()
-      .duration(animationTime)
-      .attr('cx', x(cf.length() - 1))
-      .attr('cy', y(pickedNote))
-      .attr('r', choicePointRadius / 2)
-  oldChoicePoints.transition()
-      .delay(animationTime)
-      .remove()
+
 
 
   // move choice notes out using new scales
