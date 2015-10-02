@@ -99,6 +99,19 @@ svg.append('g')
     .attr('height', y.rangeBand())
     .attr('rx', 7)
     .attr('rx', 7)
+    .on('click', deleteToHere)
+
+function deleteToHere (d, i) {
+  // i is position in construction to delete through
+  console.log(d, i)
+  if (i !== cf.length() - 1) {
+    // pop until
+    d3.range(cf.length() - 1 - i).forEach(function () {
+      cf.pop()
+    })
+    redraw(svg)
+  }
+}
 
 function appendChoices (svg) {
 // add points of choices
@@ -129,17 +142,7 @@ function appendChoices (svg) {
       .delay(function (d, i) {
         return animationTime + Math.floor(i / 2) * (choiceAnimationTime / 3)
       })
-      //.duration(animationTime)
       .attr('fill-opacity', 0.25)
-      /*
-      .on('click', function (d, i) {
-        // remove all choice-points 'on-click listeners'
-        svg.select('.choice-points').selectAll('circle')
-            .on('click', null)
-        cf.addNote(d)
-        redraw(svg)
-      })
-      */
       .transition()
       .duration(choiceAnimationTime)
       .attr('x', x(cf.length()))
@@ -212,6 +215,7 @@ function redraw (svg) {
       .attr('height', y.rangeBand() - choiceBoxYPadding())
       .attr('rx', 7)
       .attr('rx', 7)
+      .on('click', deleteToHere)
 
   // update scale domains
   y.domain(cf.domain())
@@ -229,6 +233,15 @@ function redraw (svg) {
       .attr('fill-opacity', 0)
   oldChoicePoints.transition()
       .delay(animationTime)
+      .remove()
+
+  constructionPoints.exit()
+      .transition()
+      .duration(animationTime)
+      .attr('x', x(cf.length() - 1))
+      .attr('y', y(cf.lastNote()))
+      .attr('width', x.rangeBand())
+      .attr('height', y.rangeBand())
       .remove()
 
   // move construction to new position using updated scales
@@ -263,6 +276,20 @@ function redraw (svg) {
       .text(function (d) { return Pitch(d.val).pitchClass() })
       .attr('sciPitch', function (d) { return d.val })
       .attr('y', function (d) { return y(d.val) + y.rangeBand() / 2 })
+  yText.enter()
+      .append('text')
+      .text(function (d) { return Pitch(d.val).pitchClass() })
+      .attr('sciPitch', function (d) { return d.val })
+      .attr('text-anchor', 'start')
+      .attr('dominant-baseline', 'central')
+      .attr('x', -50)
+      .attr('y', function (d) { return y(d.val) + y.rangeBand() / 2 })
+      .transition()
+      .delay(function (d) {
+        return (Pitch(d.val).intervalSize(cf.construction()[0]) - 1) * animationTime / 10
+      })
+      .duration(animationTime)
+      .attr('x', 0)
 
   appendChoices(svg)
 /*
