@@ -42,7 +42,7 @@
 
 /* the circles showing next note choices */
 .choice-notes rect {
-  fill: steelblue;
-  fill-opacity: 1;
-  stroke-width: 0;
+  fill: #c6dbef;
+  rx: 7;
+  ry: 7;
 }

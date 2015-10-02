@@ -26,7 +26,7 @@ var nextChoiceDepth = 2
 var constructionPointRadius = 15
 var choicePointRadius = 12
 var pathWidth = 1
-var animationTime = 1000
+var animationTime = 500
 var choicePadding = 0.16
 
 var xDomain = function () {
@@ -119,14 +119,12 @@ svg.append('g')
       return (cf.construction().lastIndexOf(d) === -1) ? 0 : y.rangeBand()
     })
     .attr('fill-opacity', 0)
-    .attr('stroke-opacity', 0)
     .transition()
     .delay(function (d, i) {
       return i * (animationTime / 10)
     })
     .duration(1000)
-    .attr('fill-opacity', 0.3)
-    .attr('stroke-opacity', 1)
+    .attr('fill-opacity', 0.4)
     /*
     .on('click', function (d, i) {
       // remove all choice-points 'on-click listeners'
@@ -142,7 +140,7 @@ svg.append('g')
             d3.select('#construction-line')
                 .datum(cf.construction().concat(d3.select(this).data()))
                 .transition()
-                .duration(500)
+                .duration(300)
                 .attr('d', constructionLine)
           })
           .transition()
@@ -151,7 +149,6 @@ svg.append('g')
           .attr('y', function (d) { return y(d) + choiceBoxYPadding() / 2 })
           .attr('width', x.rangeBand())
           .attr('height', y.rangeBand() - choiceBoxYPadding())
-          .attr('fill-opacity', 0.3)
     })
 
 
