@@ -23,9 +23,9 @@ var width = 800 - margin.left - margin.right
 var height = 450 - margin.top - margin.bottom
 var yAxisWidth = 44                  // space reserved for note names on y axis
 var pathWidth = 1                    // width of construction line
-var animationTime = 3000              // animation time to re-scale
-var choiceAnimationTime = 4000        // animatino time for choices to appear
-var choicePadding = 0.16             //  reserve 16% of vertical space for padding
+var animationTime = 300              // animation time to re-scale
+var choiceAnimationTime = 400        // animatino time for choices to appear
+var choicePadding = 0.16             // reserve 16% of vertical space for padding
 var unfinishedNoteColor = '#c6dbef'  // light blue
 var finishedNoteColor = '#2ca02c'    // green
 
@@ -297,6 +297,7 @@ function redraw (svg) {
       .duration(animationTime)
       .text(function (d) { return Pitch(d.val).pitchClass() })
       .attr('sciPitch', function (d) { return d.val })
+      .attr('x', 0)
       .attr('y', function (d) { return y(d.val) + y.rangeBand() / 2 })
   yText.enter()
       .append('text')
