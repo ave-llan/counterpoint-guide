@@ -71,7 +71,6 @@ svg.append('g')
     }), function (d) { return d.val })
   .enter().append('text')
     .text(function (d) { return Pitch(d.val).pitchClass() })
-    .attr('sciPitch', function (d) { return d.val })
     .attr('text-anchor', 'start')
     .attr('dominant-baseline', 'central')
     .attr('x', 0)
@@ -92,15 +91,8 @@ svg.append('g')
   .selectAll('rect')
     .data(cf.construction())
   .enter().append('rect')
-    .attr('x', function (d, i) { return x(i) })
-    .attr('y', function (d) { return y(d) })
-    .attr('width', x.rangeBand())
-    .attr('height', y.rangeBand())
-    .attr('rx', 7)
-    .attr('rx', 7)
-    .attr('fill', function () { return cf.isValid() ? finishedNoteColor : unfinishedNoteColor })
-    .attr('animating', 'no')
-    .on('click', deleteToHere)
+    .call(constructionNotes)
+    .call(applyConstructionListeners)
 
 function deleteToHere (d, i) {
   // do not execute if currently executing or if this is the current last note
@@ -119,6 +111,24 @@ function deleteToHere (d, i) {
     redraw(svg)
   }
 }
+
+function constructionNotes (transition) {
+  transition
+      .attr('x', function (d, i) { return x(i) })
+      .attr('y', function (d) { return y(d) })
+      .attr('width', x.rangeBand())
+      .attr('height', y.rangeBand())
+      .attr('rx', 7)
+      .attr('rx', 7)
+      .attr('fill', function () { return cf.isValid() ? finishedNoteColor : unfinishedNoteColor })
+}
+
+function applyConstructionListeners (selection) {
+  selection
+      .attr('animating', 'no')
+      .on('click', deleteToHere)
+}
+
 
 // collapse choices into chosen note which is now cf.lastNote()
 function choiceCollapse (transition) {
@@ -164,8 +174,39 @@ function choiceActivePosition (selection) {
       .attr('animating', 'yes')
 }
 
-function applyChoiceListeners (transition) {
+// apply listeners to choice notes after animation has finished
+function applyChoiceListeners (selection) {
+  selection
+      .attr('animating', 'no')
+      .on('mouseover', function (d) {
+        var selectedNote = d.val
+        // move construction line onto this choice
+        d3.select('#construction-line')
+            .datum(cf.construction().concat(selectedNote))
+            .transition()
+            .duration(300)
+            .attr('d', constructionLine)
+        d3.select('.choice-notes').selectAll('rect')
+            .each(function () {
+              var selection = d3.select(this)
+              if (selection.attr('animating') == 'no') {
+                selection.transition()
+                    .duration(300)
+                    .attr('fill-opacity', function (d) {
+                      return (d.val === selectedNote) ? 0.5 : 0.25
+                })
+              }
+            })
+      })
+      .on('click', function (d) {
+        // remove both event listeners
+        d3.select('.choice-notes').selectAll('rect')
+            .on('click', null)
+            .on('mouseover', null)
 
+        cf.addNote(d.val)
+        redraw(svg)
+      })
 }
 
 // takes a reference to the choiceNotes group
@@ -181,22 +222,21 @@ function appendChoices (choiceNotesGroup) {
       .attr('animating', 'yes')
       .transition()
       .duration(animationTime)
-      .call(choiceCollapse)
-      .remove()
+      .call(choiceCollapse)            // a. collapse into chosen note
+      .remove()                        // b. remove
 
   // 2. update
   choices
       .attr('animating', 'yes')
       .transition()
       .duration(animationTime)
-      .call(choiceCollapse)      // 1. collapse into choices with exit notes
-      .each('end', function () { // 2. switch position to left
-        console.log('here')
+      .call(choiceCollapse)            // a. collapse into chosen note with exit notes
+      .each('end', function () {       // b. switch position to left
         d3.select(this)
             .call(choiceEnterPosition)
       })
 
-  choices.transition()           // 3. move to active position
+  choices.transition()                  // c. move to active position
       .delay(function (d) {
         return animationTime + Pitch(d.val).intervalSize(cf.lastNote()) * choiceAnimationTime / 6
       })
@@ -204,81 +244,22 @@ function appendChoices (choiceNotesGroup) {
       .call(choiceActivePosition)
       .each('end', function () {
         d3.select(this)
-            .attr('animating', 'no')
-            .on('mouseover', function (d) {
-              var selectedNote = d.val
-              // move construction line onto this choice
-              d3.select('#construction-line')
-                  .datum(cf.construction().concat(selectedNote))
-                  .transition()
-                  .duration(300)
-                  .attr('d', constructionLine)
-              d3.select('.choice-notes').selectAll('rect')
-                  .each(function () {
-                    var selection = d3.select(this)
-                    if (selection.attr('animating') == 'no') {
-                      selection.transition()
-                          .duration(300)
-                          .attr('fill-opacity', function (d) {
-                            return (d.val === selectedNote) ? 0.5 : 0.25
-                      })
-                    }
-                  })
-            })
-            .on('click', function (d) {
-              // remove both event listeners
-              d3.select('.choice-notes').selectAll('rect')
-                  .on('click', null)
-                  .on('mouseover', null)
-
-              cf.addNote(d.val)
-              redraw(svg)
-            })
+            .call(applyChoiceListeners) // d. activate listeners
       })
 
   // 3. enter
   choices.enter()
     .append('rect')
-      .call(choiceEnterPosition)
+      .call(choiceEnterPosition)        // a. create rect at initial position
       .transition()
-      //.duration(250)            // 250 is the default, just noting it here
       .delay(function (d) {
         return animationTime + Pitch(d.val).intervalSize(cf.lastNote()) * choiceAnimationTime / 6
       })
       .duration(choiceAnimationTime)
-      .call(choiceActivePosition)
+      .call(choiceActivePosition)       // b. switch to active position
       .each('end', function () {
         d3.select(this)
-            .attr('animating', 'no')
-            .on('mouseover', function (d) {
-              var selectedNote = d.val
-              // move construction line onto this choice
-              d3.select('#construction-line')
-                  .datum(cf.construction().concat(selectedNote))
-                  .transition()
-                  .duration(300)
-                  .attr('d', constructionLine)
-              d3.select('.choice-notes').selectAll('rect')
-                  .each(function () {
-                    var selection = d3.select(this)
-                    if (selection.attr('animating') == 'no') {
-                      selection.transition()
-                          .duration(300)
-                          .attr('fill-opacity', function (d) {
-                            return (d.val === selectedNote) ? 0.5 : 0.25
-                      })
-                    }
-                  })
-            })
-            .on('click', function (d) {
-              // remove both event listeners
-              d3.select('.choice-notes').selectAll('rect')
-                  .on('click', null)
-                  .on('mouseover', null)
-
-              cf.addNote(d.val)
-              redraw(svg)
-            })
+            .call(applyChoiceListeners) // c. activate listeners
       })
 }
 
@@ -316,21 +297,7 @@ function redraw (svg) {
   y.domain(cf.domain())
   x.domain(d3.range(d3.max([8, cf.length() + 1])))
 
-  /*
-  // remove old choices after animating into pickedNote
-  var oldChoicePoints = svg.select('.choice-notes')
-  oldChoicePoints.selectAll('rect')
-      .transition()
-      .duration(animationTime)
-      .attr('x', x(cf.length() - 1))
-      .attr('y', y(cf.lastNote()))
-      .attr('width', x.rangeBand())
-      .attr('height', y.rangeBand())
-      .attr('fill-opacity', 0)
-  oldChoicePoints.transition()
-      .delay(animationTime)
-      .remove()
-  */
+  // remove unused construction points
   constructionPoints.exit()
       .transition()
       .duration(animationTime)
@@ -344,14 +311,10 @@ function redraw (svg) {
   // move construction to new position using updated scales
   constructionPoints.transition()
       .duration(animationTime)
-      .attr('x', function (d, i) { return x(i) })
-      .attr('y', function (d) { return y(d)})
-      .attr('width', x.rangeBand())
-      .attr('height', y.rangeBand())
-      .attr('fill', function () { return cf.isValid() ? finishedNoteColor : unfinishedNoteColor })
+      .call(constructionNotes)
       .each('end', function () {
         d3.select(this)
-            .attr('animating', 'no')
+            .call(applyConstructionListeners)
       })
 
   // update construction line with new scales
@@ -380,13 +343,11 @@ function redraw (svg) {
   yText.transition()
       .duration(animationTime)
       .text(function (d) { return Pitch(d.val).pitchClass() })
-      .attr('sciPitch', function (d) { return d.val })
       .attr('x', 0)
       .attr('y', function (d) { return y(d.val) + y.rangeBand() / 2 })
   yText.enter()
       .append('text')
       .text(function (d) { return Pitch(d.val).pitchClass() })
-      .attr('sciPitch', function (d) { return d.val })
       .attr('text-anchor', 'start')
       .attr('dominant-baseline', 'central')
       .attr('x', -50)
