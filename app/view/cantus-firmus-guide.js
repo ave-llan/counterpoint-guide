@@ -92,7 +92,8 @@ svg.append('g')
     .data(cf.construction())
   .enter().append('rect')
     .call(constructionNotes)
-    .call(applyConstructionListeners)
+    .attr('animating', 'no')
+    .on('click', deleteToHere)
 
 function deleteToHere (d, i) {
   // do not execute if currently executing or if this is the current last note
@@ -122,13 +123,6 @@ function constructionNotes (transition) {
       .attr('rx', 7)
       .attr('fill', function () { return cf.isValid() ? finishedNoteColor : unfinishedNoteColor })
 }
-
-function applyConstructionListeners (selection) {
-  selection
-      .attr('animating', 'no')
-      .on('click', deleteToHere)
-}
-
 
 // collapse choices into chosen note which is now cf.lastNote()
 function choiceCollapse (transition) {
@@ -314,7 +308,7 @@ function redraw (svg) {
       .call(constructionNotes)
       .each('end', function () {
         d3.select(this)
-            .call(applyConstructionListeners)
+            .attr('animating', 'no')
       })
 
   // update construction line with new scales
