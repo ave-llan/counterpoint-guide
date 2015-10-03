@@ -24,7 +24,7 @@ var height = 450 - margin.top - margin.bottom
 var yAxisWidth = 44                  // space reserved for note names on y axis
 var pathWidth = 1                    // width of construction line
 var animationTime = 300              // animation time to re-scale
-var choiceAnimationTime = 400        // animatino time for choices to appear
+var choiceAnimationTime = 500        // animatino time for choices to appear
 var choicePadding = 0.16             // reserve 16% of vertical space for padding
 var unfinishedNoteColor = '#c6dbef'  // light blue
 var finishedNoteColor = '#2ca02c'    // green
@@ -120,6 +120,54 @@ function deleteToHere (d, i) {
   }
 }
 
+// collapse choices into chosen note which is now cf.lastNote()
+function choiceCollapse (transition) {
+  transition
+      .attr('x', x(cf.length() - 1))
+      .attr('y', y(cf.lastNote()))
+      .attr('width', x.rangeBand())
+      .attr('height', y.rangeBand())
+      .attr('fill-opacity', 0)
+}
+
+// choices enter behind last note of the same pitch
+// if the pitch has not been used before, grow from size 0 and slide in from x=0
+function choiceEnterPosition (selection) {
+  selection
+      .attr('x', function (d) {
+        var lastIndex = cf.construction().lastIndexOf(d.val)
+        return (lastIndex === -1) ? yAxisWidth : x(lastIndex)
+      })
+      .attr('y', function (d) {
+        return (cf.construction().lastIndexOf(d.val) === -1) ? y(d.val) + y.rangeBand() / 2
+                                                             : y(d.val)
+      })
+      .attr('width', function (d) {
+        return (cf.construction().lastIndexOf(d.val) === -1) ? 0 : x.rangeBand()
+      })
+      .attr('height', function (d) {
+        return (cf.construction().lastIndexOf(d.val) === -1) ? 0 : y.rangeBand()
+      })
+      .attr('fill-opacity', 0)
+      .attr('rx', 7)
+      .attr('rx', 7)
+      .attr('animating', 'yes') // set to 'no' when finished moving
+}
+
+function choiceActivePosition (selection) {
+  selection
+      .attr('x', x(cf.length()))
+      .attr('y', function (d) { return y(d.val) + choiceBoxYPadding() / 2 })
+      .attr('width', x.rangeBand())
+      .attr('height', y.rangeBand() - choiceBoxYPadding())
+      .attr('fill-opacity', 0.25)
+      .attr('animating', 'yes')
+}
+
+function applyChoiceListeners (transition) {
+
+}
+
 // takes a reference to the choiceNotes group
 function appendChoices (choiceNotesGroup) {
 // add points of choices
@@ -128,25 +176,32 @@ function appendChoices (choiceNotesGroup) {
             return {val: sciPitch}
           }), function (d) { return d.val })
 
+  // 1. exit
   choices.exit()
       .attr('animating', 'yes')
       .transition()
       .duration(animationTime)
-      .attr('x', x(cf.length() - 1))
-      .attr('y', y(cf.lastNote()))
-      .attr('width', x.rangeBand())
-      .attr('height', y.rangeBand())
-      .attr('fill-opacity', 0)
+      .call(choiceCollapse)
       .remove()
 
-  choices.transition()
-      .duration(animationTime)
-      .attr('x', x(cf.length()))
-      .attr('y', function (d) { return y(d.val) + choiceBoxYPadding() / 2 })
-      .attr('width', x.rangeBand())
-      .attr('height', y.rangeBand() - choiceBoxYPadding())
-      .attr('fill-opacity', 0.25)
+  // 2. update
+  choices
       .attr('animating', 'yes')
+      .transition()
+      .duration(animationTime)
+      .call(choiceCollapse)      // 1. collapse into choices with exit notes
+      .each('end', function () { // 2. switch position to left
+        console.log('here')
+        d3.select(this)
+            .call(choiceEnterPosition)
+      })
+
+  choices.transition()           // 3. move to active position
+      .delay(function (d) {
+        return animationTime + Pitch(d.val).intervalSize(cf.lastNote()) * choiceAnimationTime / 6
+      })
+      .duration(choiceAnimationTime)
+      .call(choiceActivePosition)
       .each('end', function () {
         d3.select(this)
             .attr('animating', 'no')
@@ -181,38 +236,17 @@ function appendChoices (choiceNotesGroup) {
             })
       })
 
+  // 3. enter
   choices.enter()
     .append('rect')
-      .attr('x', function (d) {
-        var lastIndex = cf.construction().lastIndexOf(d.val)
-        return (lastIndex === -1) ? yAxisWidth : x(lastIndex)
-      })
-      .attr('y', function (d) {
-        return (cf.construction().lastIndexOf(d.val) === -1) ? y(d.val) + y.rangeBand() / 2
-                                                             : y(d.val)
-      })
-      .attr('width', function (d) {
-        return (cf.construction().lastIndexOf(d.val) === -1) ? 0 : x.rangeBand()
-      })
-      .attr('height', function (d) {
-        return (cf.construction().lastIndexOf(d.val) === -1) ? 0 : y.rangeBand()
-      })
-      .attr('fill-opacity', 0)
-      .attr('rx', 7)
-      .attr('rx', 7)
-      .attr('animating', 'yes') // set to 'no' when finished moving
+      .call(choiceEnterPosition)
       .transition()
       //.duration(250)            // 250 is the default, just noting it here
       .delay(function (d) {
-        return Pitch(d.val).intervalSize(cf.lastNote()) * choiceAnimationTime / 6
+        return animationTime + Pitch(d.val).intervalSize(cf.lastNote()) * choiceAnimationTime / 6
       })
-      .attr('fill-opacity', 0.25)
-      .transition()
       .duration(choiceAnimationTime)
-      .attr('x', x(cf.length()))
-      .attr('y', function (d) { return y(d.val) + choiceBoxYPadding() / 2 })
-      .attr('width', x.rangeBand())
-      .attr('height', y.rangeBand() - choiceBoxYPadding())
+      .call(choiceActivePosition)
       .each('end', function () {
         d3.select(this)
             .attr('animating', 'no')
@@ -359,9 +393,9 @@ function redraw (svg) {
       .attr('y', function (d) { return y(d.val) + y.rangeBand() / 2 })
       .transition()
       .delay(function (d) { // try to match incoming choice notes
-        return 350 + (Pitch(d.val).intervalSize(cf.lastNote()) * choiceAnimationTime / 6)
+        return animationTime + (Pitch(d.val).intervalSize(cf.lastNote()) * choiceAnimationTime / 6)
       })
-      .duration(animationTime)
+      .duration(choiceAnimationTime)
       .attr('x', 0)
 
   appendChoices(d3.select('.choice-notes'))
