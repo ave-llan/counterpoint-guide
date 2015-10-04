@@ -180,17 +180,6 @@ function applyChoiceListeners (selection) {
             .transition()
             .duration(300)
             .attr('d', constructionLine)
-        d3.select('.choice-notes').selectAll('rect')
-            .each(function () {
-              var selection = d3.select(this)
-              if (selection.attr('animating') == 'no') {
-                selection.transition()
-                    .duration(300)
-                    .attr('fill-opacity', function (d) {
-                      return (d.val === selectedNote) ? 0.5 : 0.25
-                })
-              }
-            })
       })
       .on('click', function (d) {
         // remove both event listeners
