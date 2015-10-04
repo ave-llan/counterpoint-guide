@@ -101,7 +101,9 @@ svg.append('g')
     .call(constructionNotes)
     .attr('animating', 'no')
     .on('mousedown', constructionMouseDown)
+    .on('touchstart', constructionMouseDown)
     .on('mouseup', constructionMouseUp)
+    .on('touchend', constructionMouseUp)
 
 // clear delete timeout and reset note size and opacity
 function constructionMouseUp (d, i) {
@@ -127,6 +129,7 @@ function playNote (note) {
 
 // play note, highlight note, and set delete timeout
 function constructionMouseDown (d, i) {
+  d3.event.preventDefault()
   playNote(d)
   console.log(d, i)
   var index = i
@@ -150,7 +153,7 @@ function constructionMouseDown (d, i) {
         .attr('height', y.rangeBand() * onClickSize)
         // 2. shrink to below normal size
         .transition()
-        .duration(650)
+        .duration(700)
         .attr('x', function (d, i) {
           return x(index) + (x.rangeBand() - x.rangeBand() / onClickSize) / 2
         })
@@ -173,7 +176,7 @@ function constructionMouseDown (d, i) {
         .attr('height', y.rangeBand() * sizeBeforePop)
   } else {
     d3.select(this)
-        // 1. only highlight and grow
+        // 1. highlight and grow
         .transition()
         .duration(50)
         .attr('fill-opacity', onClickNoteOpacity)
@@ -186,6 +189,14 @@ function constructionMouseDown (d, i) {
         })
         .attr('width', x.rangeBand() * onClickSize)
         .attr('height', y.rangeBand() * onClickSize)
+        // 2. go back to normal
+        .transition()
+        .duration(250)
+        .attr('fill-opacity', constructionOpacity)
+        .attr('x', x(index))
+        .attr('y', function (d) { return y(d) })
+        .attr('width', x.rangeBand())
+        .attr('height', y.rangeBand())
   }
 }
 
@@ -367,7 +378,9 @@ function redraw (svg) {
       .attr('fill', '#c6dbef')
       .attr('animating', 'yes')
       .on('mousedown', constructionMouseDown)
+      .on('touchstart', constructionMouseDown)
       .on('mouseup', constructionMouseUp)
+      .on('touchend', constructionMouseUp)
 
 
   // update scale domains
