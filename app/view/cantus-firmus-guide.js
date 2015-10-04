@@ -29,6 +29,13 @@ var choicePadding = 0.16             // reserve 16% of vertical space for paddin
 var unfinishedNoteColor = '#c6dbef'  // light blue
 var finishedNoteColor = '#2ca02c'    // green
 
+var deleteTimeout                    // timeout to be used for holding and deleting
+var deleteTimeoutDuration = 800     // time until delete timeout is executed
+var constructionOpacity = 0.5        // opacity of construction notes
+var onClickNoteOpacity  = 1          // on click opacity
+var onClickSize = 1.2                // increase size to 120%
+var sizeBeforePop = 1.6              // increase size to 160%
+
 var xDomain = function () {
   var minAllowed = d3.max([8, cf.length() + 2])
   var range = minAllowed > cf.maxLength() ? cf.maxLength() : minAllowed
@@ -93,24 +100,109 @@ svg.append('g')
   .enter().append('rect')
     .call(constructionNotes)
     .attr('animating', 'no')
-    .on('click', deleteToHere)
+    .on('mousedown', constructionMouseDown)
+    .on('mouseup', constructionMouseUp)
 
-function deleteToHere (d, i) {
-  // do not execute if currently executing or if this is the current last note
+// clear delete timeout and reset note size and opacity
+function constructionMouseUp (d, i) {
+  window.clearTimeout(deleteTimeout)
+  var index = i
+  d3.select(this)
+      .transition()
+      .duration(250)
+      .attr('fill-opacity', constructionOpacity)
+      .attr('x', x(index))
+      .attr('y', function (d) { return y(d) })
+      .attr('width', x.rangeBand())
+      .attr('height', y.rangeBand())
+}
+
+function deleteMe () {
+  console.log('deleted!')
+}
+
+function playNote (note) {
+  console.log('Played:', note)
+}
+
+// play note, highlight note, and set delete timeout
+function constructionMouseDown (d, i) {
+  playNote(d)
+  console.log(d, i)
+  var index = i
   if (d3.select(this).attr('animating') === 'no' && i !== cf.length() - 1) {
-    // set construction points to animating
-    d3.select('.construction-notes').selectAll('rect')
-        .attr('animating', 'yes')
-    // disable choice mouse events
-    d3.select('.choice-notes').selectAll('rect')
-        .on('click', null)
-        .on('mouseover', null)
-    // pop until
-    d3.range(cf.length() - 1 - i).forEach(function () {
-      cf.pop()
-    })
-    redraw(svg)
+    deleteTimeout = window.setTimeout(function () {
+      deleteToHere(index)
+    }, deleteTimeoutDuration)
+
+    d3.select(this)
+        // 1. highlight and grow
+        .transition()
+        .duration(50)
+        .attr('fill-opacity', onClickNoteOpacity)
+        .attr('x', function (d, i) {
+          return x(index) - (x.rangeBand() * onClickSize - x.rangeBand()) / 2
+        })
+        .attr('y', function (d) {
+          return y(d) - (y.rangeBand() * onClickSize - y.rangeBand()) / 2
+        })
+        .attr('width', x.rangeBand() * onClickSize)
+        .attr('height', y.rangeBand() * onClickSize)
+        // 2. shrink to below normal size
+        .transition()
+        .duration(650)
+        .attr('x', function (d, i) {
+          return x(index) + (x.rangeBand() - x.rangeBand() / onClickSize) / 2
+        })
+        .attr('y', function (d) {
+          return y(d) + (y.rangeBand() - y.rangeBand() / onClickSize) / 2
+        })
+        .attr('width', x.rangeBand() / onClickSize)
+        .attr('height', y.rangeBand() / onClickSize)
+        .attr('fill-opacity', constructionOpacity)
+        // 3. rapidly grow in preparation for delete
+        .transition()
+        .duration(100)
+        .attr('x', function (d, i) {
+          return x(index) - (x.rangeBand() * sizeBeforePop - x.rangeBand()) / 2
+        })
+        .attr('y', function (d) {
+          return y(d) - (y.rangeBand() * sizeBeforePop - y.rangeBand()) / 2
+        })
+        .attr('width', x.rangeBand() * sizeBeforePop)
+        .attr('height', y.rangeBand() * sizeBeforePop)
+  } else {
+    d3.select(this)
+        // 1. only highlight and grow
+        .transition()
+        .duration(50)
+        .attr('fill-opacity', onClickNoteOpacity)
+        .attr('x', function (d, i) {
+          return x(index) - (x.rangeBand() * onClickSize - x.rangeBand()) / 2
+        })
+        .attr('y', function (d) {
+          console.log('here instead')
+          return y(d) - (y.rangeBand() * onClickSize - y.rangeBand()) / 2
+        })
+        .attr('width', x.rangeBand() * onClickSize)
+        .attr('height', y.rangeBand() * onClickSize)
   }
+}
+
+// delete all construction notes up to this index point (not inclusive)
+function deleteToHere (index) {
+  // set construction points to animating
+  d3.select('.construction-notes').selectAll('rect')
+      .attr('animating', 'yes')
+  // disable choice mouse events
+  d3.select('.choice-notes').selectAll('rect')
+      .on('click', null)
+      .on('mouseover', null)
+  // pop until
+  d3.range(cf.length() - 1 - index).forEach(function () {
+    cf.pop()
+  })
+  redraw(svg)
 }
 
 function constructionNotes (transition) {
@@ -121,6 +213,7 @@ function constructionNotes (transition) {
       .attr('height', y.rangeBand())
       .attr('rx', 7)
       .attr('rx', 7)
+      .attr('fill-opacity', constructionOpacity)
       .attr('fill', function () { return cf.isValid() ? finishedNoteColor : unfinishedNoteColor })
 }
 
@@ -273,7 +366,8 @@ function redraw (svg) {
       .attr('rx', 7)
       .attr('fill', '#c6dbef')
       .attr('animating', 'yes')
-      .on('click', deleteToHere)
+      .on('mousedown', constructionMouseDown)
+      .on('mouseup', constructionMouseUp)
 
 
   // update scale domains

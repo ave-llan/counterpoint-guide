@@ -20,7 +20,6 @@
 
 /* the circles showing notes chosen so far */
 .construction-notes rect {
-  fill-opacity: 0.5;
   stroke: steelblue;
   stroke-width: 0;
   stroke-opacity: 1;
