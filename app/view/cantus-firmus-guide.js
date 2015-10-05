@@ -24,15 +24,18 @@ var height = 450 - margin.top - margin.bottom
 var yAxisWidth = 44                  // space reserved for note names on y axis
 var pathWidth = 1                    // width of construction line
 var animationTime = 300              // animation time to re-scale
-var choiceAnimationTime = 500        // animatino time for choices to appear
+var choiceAnimationTime = 500        // animation time for choices to appear
 var choicePadding = 0.16             // reserve 16% of vertical space for padding
+
+var choiceOpacity = 0.25             // opacity of choice notes
+
 var unfinishedNoteColor = '#c6dbef'  // light blue
 var finishedNoteColor = '#2ca02c'    // green
 
 var constructionOpacity = 0.5        // opacity of construction notes
 var onClickNoteOpacity  = 1          // on click opacity
 var onClickSize = 1.2                // increase size to 120%
-var sizeBeforePop = 1.6              // increase size to 160%
+var sizeBeforeSelect = 1.6              // increase size to 160%
 
 var fontSize = '1.3em'               // default font size
 var highlightedFontSize = '2.2em'      // font size when note is selected
@@ -70,22 +73,6 @@ var svg = d3.select('counterpoint')
   .append('g')
     .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')')
 
-// add note names to y axis
-svg.append('g')
-    .attr('class', 'y-axis-text')
-  .selectAll('text')
-    .data(cf.domain().map(function (sciPitch) {
-      return {val: sciPitch}
-    }), function (d) { return d.val })
-  .enter().append('text')
-    .text(function (d) { return Pitch(d.val).pitchClass() })
-    .attr('font-size', fontSize)
-    .attr('text-anchor', 'start')
-    .attr('dominant-baseline', 'central')
-    .attr('x', 0)
-    .attr('y', function (d) { return y(d.val) + y.rangeBand() / 2 })
-
-
 // add path of current cf construction
 svg.append('path')
     .datum(cf.construction())
@@ -106,6 +93,21 @@ svg.append('g')
     .on('touchstart', constructionMouseDown)
     .on('mouseup', constructionMouseUp)
     .on('touchend', constructionMouseUp)
+
+// add note names to y axis
+svg.append('g')
+    .attr('class', 'y-axis-text')
+  .selectAll('text')
+    .data(cf.domain().map(function (sciPitch) {
+      return {val: sciPitch}
+    }), function (d) { return d.val })
+  .enter().append('text')
+    .text(function (d) { return Pitch(d.val).pitchClass() })
+    .attr('font-size', fontSize)
+    .attr('text-anchor', 'start')
+    .attr('dominant-baseline', 'central')
+    .attr('x', 0)
+    .attr('y', function (d) { return y(d.val) + y.rangeBand() / 2 })
 
 // clear delete timeout and reset note size and opacity
 function constructionMouseUp (d, i) {
@@ -144,7 +146,7 @@ function highlightYtext(note) {
       // 3. rapidly grow in preparation for delete
       .transition()
       .duration(200)
-      .attr('font-size', '4em')
+      .attr('font-size', '3.3em')
 }
 
 function resetYTextSize(note) {
@@ -155,49 +157,52 @@ function resetYTextSize(note) {
       .attr('font-size', fontSize)
 }
 
-// play note, highlight note, and set delete timeout
+function growNoteOnTap(transition, xIndex, note) {
+  transition
+      .attr('fill-opacity', onClickNoteOpacity)
+      .attr('x', x(xIndex) - (x.rangeBand() * onClickSize - x.rangeBand()) / 2)
+      .attr('y', y(note) - (y.rangeBand() * onClickSize - y.rangeBand()) / 2)
+      .attr('width', x.rangeBand() * onClickSize)
+      .attr('height', y.rangeBand() * onClickSize)
+}
+
+function growBeforeSelect(transition, xIndex, note) {
+  transition
+      .attr('x', x(xIndex) - (x.rangeBand() * sizeBeforeSelect - x.rangeBand()) / 2)
+      .attr('y', y(note) - (y.rangeBand() * sizeBeforeSelect - y.rangeBand()) / 2)
+      .attr('width', x.rangeBand() * sizeBeforeSelect)
+      .attr('height', y.rangeBand() * sizeBeforeSelect)
+}
+
+// play note, highlight note, and delete if held
 function constructionMouseDown (d, i) {
   d3.event.preventDefault()   // prevent default selection
-  var index = i               // capture index for using in x scales below
+  var xIndex = i              // capture index for using in x scales below
+  var note = d
 
-  playNote(d)                 // play the note
-  highlightYtext(d)           // highlight y axis text
+  playNote(note)                 // play the note
+  highlightYtext(note)           // highlight y axis text
   if (d3.select(this).attr('animating') === 'no') {
     d3.select(this)
         // 1. highlight and grow
         .attr('selected', 'true')
         .transition()
         .duration(50)
-        .attr('fill-opacity', onClickNoteOpacity)
-        .attr('x', function () {
-          return x(index) - (x.rangeBand() * onClickSize - x.rangeBand()) / 2
-        })
-        .attr('y', function (d) {
-          return y(d) - (y.rangeBand() * onClickSize - y.rangeBand()) / 2
-        })
-        .attr('width', x.rangeBand() * onClickSize)
-        .attr('height', y.rangeBand() * onClickSize)
+        .call(growNoteOnTap, xIndex, note)
         // 2. delay for a moment
         .transition()
         .delay(200)
         // 3. rapidly grow in preparation for delete
         .transition()
         .duration(200)
-        .attr('x', function (d, i) {
-          return x(index) - (x.rangeBand() * sizeBeforePop - x.rangeBand()) / 2
-        })
-        .attr('y', function (d) {
-          return y(d) - (y.rangeBand() * sizeBeforePop - y.rangeBand()) / 2
-        })
-        .attr('width', x.rangeBand() * sizeBeforePop)
-        .attr('height', y.rangeBand() * sizeBeforePop)
+        .call(growBeforeSelect, xIndex, note)
         // 4. delete up to this point and redraw
         .each('end', function () {
           d3.select(this)
               .attr('selected', 'false')
           // prevent calling delete multiple times at once on multi-touch
           if (d3.select(this).attr('animating') === 'no') {
-            deleteToHere (index)
+            deleteToHere (xIndex)
           }
         })
   }
@@ -272,8 +277,7 @@ function choiceActivePosition (selection) {
       .attr('y', function (d) { return y(d.val) + choiceBoxYPadding() / 2 })
       .attr('width', x.rangeBand())
       .attr('height', y.rangeBand() - choiceBoxYPadding())
-      .attr('fill-opacity', 0.25)
-      .attr('animating', 'yes')
+      .attr('fill-opacity', choiceOpacity)
 }
 
 // apply listeners to choice notes after animation has finished
@@ -289,15 +293,68 @@ function applyChoiceListeners (selection) {
             .duration(300)
             .attr('d', constructionLine)
       })
-      .on('click', function (d) {
-        // remove both event listeners
-        d3.select('.choice-notes').selectAll('rect')
-            .on('click', null)
-            .on('mouseover', null)
+      .on('mousedown', choiceMouseDown)
+      .on('touchstart', choiceMouseDown)
+      .on('mouseup', choiceMouseUp)
+      .on('touchend', choiceMouseUp)
+}
 
-        cf.addNote(d.val)
-        redraw(svg)
-      })
+// play note, highlight note, and delete if held
+function choiceMouseDown (d, i) {
+  d3.event.preventDefault()   // prevent default selection
+  var xIndex = cf.length()    // index for use in x scales below
+  var note = d.val
+  playNote(note)                 // play the note
+  highlightYtext(note)           // highlight y axis text
+  if (d3.select(this).attr('animating') === 'no') {
+    d3.select(this)
+        // 1. highlight and grow
+        .attr('selected', 'true')
+        .transition()
+        .duration(50)
+        .call(growNoteOnTap, xIndex, note)
+        // 2. delay for a moment
+        .transition()
+        .delay(200)
+        // 3. rapidly grow in preparation for delete
+        .transition()
+        .duration(200)
+        .call(growBeforeSelect, xIndex, note)
+        // 4. delete up to this point and redraw
+        .each('end', function () {
+          d3.select(this)
+              .attr('selected', 'false')
+          // prevent selecting multiple choices at once on multi-touch
+          if (d3.select(this).attr('animating') === 'no') {
+            // remove event listeners from all note choices
+            d3.select('.choice-notes').selectAll('rect')
+                .on('mouseover', null)
+                .on('mousedown', null)
+                .on('touchstart', null)
+                .on('mouseup', null)
+                .on('touchend', null)
+            cf.addNote(d.val)
+            redraw(svg)
+          }
+        })
+  }
+}
+
+// clear delete timeout and reset note size and opacity
+function choiceMouseUp (d, i) {
+  var xIndex = cf.length()    // index for use in x scales below
+  var note = d.val
+  if (d3.select(this).attr('selected') === 'true') {
+    resetYTextSize(note)  // un-highlight y-axis note name
+    d3.select(this)
+        .transition()
+        .duration(250)
+        .call(choiceActivePosition)
+        .each('end', function () {
+          d3.select(this)
+              .attr('animating', 'no')
+        })
+  }
 }
 
 // takes a reference to the choiceNotes group
@@ -311,7 +368,7 @@ function appendChoices (choiceNotesGroup) {
   // 1. exit
   choices.exit()
       .attr('animating', 'yes')
-      .transition()
+    .transition()
       .duration(animationTime)
       .call(choiceCollapse)            // a. collapse into chosen note
       .remove()                        // b. remove
@@ -319,7 +376,7 @@ function appendChoices (choiceNotesGroup) {
   // 2. update
   choices
       .attr('animating', 'yes')
-      .transition()
+    .transition()
       .duration(animationTime)
       .call(choiceCollapse)            // a. collapse into chosen note with exit notes
       .each('end', function () {       // b. switch position to left
@@ -327,7 +384,9 @@ function appendChoices (choiceNotesGroup) {
             .call(choiceEnterPosition)
       })
 
-  choices.transition()                  // c. move to active position
+  choices
+      .attr('animating', 'yes')
+    .transition()                  // c. move to active position
       .delay(function (d) {
         return animationTime + Pitch(d.val).intervalSize(cf.lastNote()) * choiceAnimationTime / 6
       })
@@ -342,7 +401,7 @@ function appendChoices (choiceNotesGroup) {
   choices.enter()
     .append('rect')
       .call(choiceEnterPosition)        // a. create rect at initial position
-      .transition()
+    .transition()
       .delay(function (d) {
         return animationTime + Pitch(d.val).intervalSize(cf.lastNote()) * choiceAnimationTime / 6
       })
