@@ -38,6 +38,4 @@
 /* the circles showing next note choices */
 .choice-notes rect {
   fill: #c6dbef;
-  rx: 7;
-  ry: 7;
 }

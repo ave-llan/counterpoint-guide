@@ -232,7 +232,7 @@ function constructionNotes (transition) {
       .attr('width', x.rangeBand())
       .attr('height', y.rangeBand())
       .attr('rx', 7)
-      .attr('rx', 7)
+      .attr('ry', 7)
       .attr('fill-opacity', constructionOpacity)
       .attr('fill', function () { return cf.isValid() ? finishedNoteColor : unfinishedNoteColor })
 }
@@ -267,7 +267,7 @@ function choiceEnterPosition (selection) {
       })
       .attr('fill-opacity', 0)
       .attr('rx', 7)
-      .attr('rx', 7)
+      .attr('ry', 7)
       .attr('animating', 'yes') // set to 'no' when finished moving
 }
 
@@ -437,7 +437,7 @@ function redraw (svg) {
       .attr('width', x.rangeBand())
       .attr('height', y.rangeBand() - choiceBoxYPadding())
       .attr('rx', 7)
-      .attr('rx', 7)
+      .attr('ry', 7)
       .attr('fill', '#c6dbef')
       .attr('animating', 'yes')
       .on('mousedown', constructionMouseDown)
