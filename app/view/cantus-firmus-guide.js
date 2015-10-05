@@ -138,6 +138,13 @@ function highlightYtext(note) {
       .transition()
       .duration(50)
       .attr('font-size', highlightedFontSize)
+      // 2. delay for a moment
+      .transition()
+      .delay(200)
+      // 3. rapidly grow in preparation for delete
+      .transition()
+      .duration(200)
+      .attr('font-size', '4em')
 }
 
 function resetYTextSize(note) {
