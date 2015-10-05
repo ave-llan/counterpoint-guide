@@ -39,6 +39,9 @@ var sizeBeforeSelect = 1.6              // increase size to 160%
 
 var fontSize = '1.3em'               // default font size
 var highlightedFontSize = '2.2em'      // font size when note is selected
+var fontSizeBeforeSelect = '2.2em'
+
+var touchDetected = false            // has the SVG received a touchevent? if so, disable mousover
 
 var xDomain = function () {
   var minAllowed = d3.max([8, cf.length() + 2])
@@ -70,6 +73,12 @@ var svg = d3.select('counterpoint')
   .append('svg')
     .attr('width', width + margin.left + margin.right)
     .attr('height', height + margin.top + margin.bottom)
+    // if touched, disable mouseover
+    .on('touchstart', function () {
+      touchDetected = true
+      d3.select(this)
+          .on('touchstart', null)
+    })
   .append('g')
     .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')')
 
@@ -140,13 +149,6 @@ function highlightYtext(note) {
       .transition()
       .duration(50)
       .attr('font-size', highlightedFontSize)
-      // 2. delay for a moment
-      .transition()
-      .delay(200)
-      // 3. rapidly grow in preparation for delete
-      .transition()
-      .duration(200)
-      .attr('font-size', '3.3em')
 }
 
 function resetYTextSize(note) {
@@ -216,8 +218,11 @@ function deleteToHere (index) {
       .attr('selected', 'false')
   // disable choice mouse events
   d3.select('.choice-notes').selectAll('rect')
-      .on('click', null)
       .on('mouseover', null)
+      .on('mousedown', null)
+      .on('touchstart', null)
+      .on('mouseup', null)
+      .on('touchend', null)
   // pop until
   d3.range(cf.length() - 1 - index).forEach(function () {
     cf.pop()
@@ -285,13 +290,17 @@ function applyChoiceListeners (selection) {
   selection
       .attr('animating', 'no')
       .on('mouseover', function (d) {
-        var selectedNote = d.val
-        // move construction line onto this choice
-        d3.select('#construction-line')
-            .datum(cf.construction().concat(selectedNote))
-            .transition()
-            .duration(300)
-            .attr('d', constructionLine)
+        // only do this if no touch has been detected.
+        // looks great with a mouse, is confusing on a touchscreen
+        if (!touchDetected) {
+          var selectedNote = d.val
+          // move construction line onto this choice
+          d3.select('#construction-line')
+              .datum(cf.construction().concat(selectedNote))
+              .transition()
+              .duration(300)
+              .attr('d', constructionLine)
+        }
       })
       .on('mousedown', choiceMouseDown)
       .on('touchstart', choiceMouseDown)
