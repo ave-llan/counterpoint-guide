@@ -421,6 +421,12 @@ appendChoices(choiceNotesGroup)
 
 
 function redraw (svg) {
+  // unselect all notes to prevent any touch-end or mouse-off events
+  d3.select('.construction-notes').selectAll('rect')
+      .attr('selected', 'false')
+  d3.select('.choice-notes').selectAll('rect')
+      .attr('selected', 'false')
+
   // before updating scales, use old scale to new point and extend path
   // create note in choice position for animation
   var constructionPoints = svg.select('.construction-notes').selectAll('rect')
