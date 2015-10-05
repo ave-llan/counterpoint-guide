@@ -144,6 +144,7 @@ function resetYTextSize(note) {
       .transition()
       .duration(250)
       .attr('font-size', fontSize)
+      .attr('y', function (d) { return y(d.val) + y.rangeBand() / 2 })
 }
 
 // play note, highlight note, and set delete timeout
