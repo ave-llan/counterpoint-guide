@@ -34,6 +34,9 @@ var onClickNoteOpacity  = 1          // on click opacity
 var onClickSize = 1.2                // increase size to 120%
 var sizeBeforePop = 1.6              // increase size to 160%
 
+var fontSize = '1.3em'               // default font size
+var highlightedFontSize = '2.2em'      // font size when note is selected
+
 var xDomain = function () {
   var minAllowed = d3.max([8, cf.length() + 2])
   var range = minAllowed > cf.maxLength() ? cf.maxLength() : minAllowed
@@ -76,6 +79,7 @@ svg.append('g')
     }), function (d) { return d.val })
   .enter().append('text')
     .text(function (d) { return Pitch(d.val).pitchClass() })
+    .attr('font-size', fontSize)
     .attr('text-anchor', 'start')
     .attr('dominant-baseline', 'central')
     .attr('x', 0)
@@ -105,7 +109,8 @@ svg.append('g')
 
 // clear delete timeout and reset note size and opacity
 function constructionMouseUp (d, i) {
-  var index = i    // capture index for using in x scales below
+  var index = i      // capture index for using in x scales below
+  resetYTextSize(d)  // un-highlight y-axis note name
   d3.select(this)
       .transition()
       .duration(250)
@@ -125,12 +130,29 @@ function playNote (note) {
   console.log('Played:', note)
 }
 
+function highlightYtext(note) {
+  d3.select('.y-axis-text').selectAll('text')
+      .filter(function (d) { return d.val === note })
+      .transition()
+      .duration(50)
+      .attr('font-size', highlightedFontSize)
+}
+
+function resetYTextSize(note) {
+  d3.select('.y-axis-text').selectAll('text')
+      .filter(function (d) { return d.val === note })
+      .transition()
+      .duration(250)
+      .attr('font-size', fontSize)
+}
+
 // play note, highlight note, and set delete timeout
 function constructionMouseDown (d, i) {
   d3.event.preventDefault()   // prevent default selection
   var index = i               // capture index for using in x scales below
 
   playNote(d)                 // play the note
+  highlightYtext(d)           // highlight y axis text
   if (d3.select(this).attr('animating') === 'no') {
     d3.select(this)
         // 1. highlight and grow
@@ -399,9 +421,11 @@ function redraw (svg) {
       .text(function (d) { return Pitch(d.val).pitchClass() })
       .attr('x', 0)
       .attr('y', function (d) { return y(d.val) + y.rangeBand() / 2 })
+      .attr('font-size', fontSize)
   yText.enter()
       .append('text')
       .text(function (d) { return Pitch(d.val).pitchClass() })
+      .attr('font-size', fontSize)
       .attr('text-anchor', 'start')
       .attr('dominant-baseline', 'central')
       .attr('x', -50)
