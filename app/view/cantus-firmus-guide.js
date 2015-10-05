@@ -29,8 +29,6 @@ var choicePadding = 0.16             // reserve 16% of vertical space for paddin
 var unfinishedNoteColor = '#c6dbef'  // light blue
 var finishedNoteColor = '#2ca02c'    // green
 
-var deleteTimeout                    // timeout to be used for holding and deleting
-var deleteTimeoutDuration = 800     // time until delete timeout is executed
 var constructionOpacity = 0.5        // opacity of construction notes
 var onClickNoteOpacity  = 1          // on click opacity
 var onClickSize = 1.2                // increase size to 120%
@@ -107,8 +105,7 @@ svg.append('g')
 
 // clear delete timeout and reset note size and opacity
 function constructionMouseUp (d, i) {
-  window.clearTimeout(deleteTimeout)
-  var index = i
+  var index = i    // capture index for using in x scales below
   d3.select(this)
       .transition()
       .duration(250)
@@ -117,33 +114,30 @@ function constructionMouseUp (d, i) {
       .attr('y', function (d) { return y(d) })
       .attr('width', x.rangeBand())
       .attr('height', y.rangeBand())
+      .each('end', function () {
+        d3.select(this)
+            .attr('animating', 'no')
+      })
 }
 
-function deleteMe () {
-  console.log('deleted!')
-}
-
+// this function will play the note
 function playNote (note) {
   console.log('Played:', note)
 }
 
 // play note, highlight note, and set delete timeout
 function constructionMouseDown (d, i) {
-  d3.event.preventDefault()
-  playNote(d)
-  console.log(d, i)
-  var index = i
-  if (d3.select(this).attr('animating') === 'no' && i !== cf.length() - 1) {
-    deleteTimeout = window.setTimeout(function () {
-      deleteToHere(index)
-    }, deleteTimeoutDuration)
+  d3.event.preventDefault()   // prevent default selection
+  var index = i               // capture index for using in x scales below
 
+  playNote(d)                 // play the note
+  if (d3.select(this).attr('animating') === 'no') {
     d3.select(this)
         // 1. highlight and grow
         .transition()
         .duration(50)
         .attr('fill-opacity', onClickNoteOpacity)
-        .attr('x', function (d, i) {
+        .attr('x', function () {
           return x(index) - (x.rangeBand() * onClickSize - x.rangeBand()) / 2
         })
         .attr('y', function (d) {
@@ -151,21 +145,12 @@ function constructionMouseDown (d, i) {
         })
         .attr('width', x.rangeBand() * onClickSize)
         .attr('height', y.rangeBand() * onClickSize)
-        // 2. shrink to below normal size
+        // 2. delay for a moment
         .transition()
-        .duration(700)
-        .attr('x', function (d, i) {
-          return x(index) + (x.rangeBand() - x.rangeBand() / onClickSize) / 2
-        })
-        .attr('y', function (d) {
-          return y(d) + (y.rangeBand() - y.rangeBand() / onClickSize) / 2
-        })
-        .attr('width', x.rangeBand() / onClickSize)
-        .attr('height', y.rangeBand() / onClickSize)
-        .attr('fill-opacity', constructionOpacity)
+        .delay(200)
         // 3. rapidly grow in preparation for delete
         .transition()
-        .duration(100)
+        .duration(200)
         .attr('x', function (d, i) {
           return x(index) - (x.rangeBand() * sizeBeforePop - x.rangeBand()) / 2
         })
@@ -174,29 +159,8 @@ function constructionMouseDown (d, i) {
         })
         .attr('width', x.rangeBand() * sizeBeforePop)
         .attr('height', y.rangeBand() * sizeBeforePop)
-  } else {
-    d3.select(this)
-        // 1. highlight and grow
-        .transition()
-        .duration(50)
-        .attr('fill-opacity', onClickNoteOpacity)
-        .attr('x', function (d, i) {
-          return x(index) - (x.rangeBand() * onClickSize - x.rangeBand()) / 2
-        })
-        .attr('y', function (d) {
-          console.log('here instead')
-          return y(d) - (y.rangeBand() * onClickSize - y.rangeBand()) / 2
-        })
-        .attr('width', x.rangeBand() * onClickSize)
-        .attr('height', y.rangeBand() * onClickSize)
-        // 2. go back to normal
-        .transition()
-        .duration(250)
-        .attr('fill-opacity', constructionOpacity)
-        .attr('x', x(index))
-        .attr('y', function (d) { return y(d) })
-        .attr('width', x.rangeBand())
-        .attr('height', y.rangeBand())
+        // 4. delete up to this point and redraw
+        .each('end', function () { deleteToHere (index) })
   }
 }
 
