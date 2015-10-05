@@ -109,20 +109,22 @@ svg.append('g')
 
 // clear delete timeout and reset note size and opacity
 function constructionMouseUp (d, i) {
-  var index = i      // capture index for using in x scales below
-  resetYTextSize(d)  // un-highlight y-axis note name
-  d3.select(this)
-      .transition()
-      .duration(250)
-      .attr('fill-opacity', constructionOpacity)
-      .attr('x', x(index))
-      .attr('y', function (d) { return y(d) })
-      .attr('width', x.rangeBand())
-      .attr('height', y.rangeBand())
-      .each('end', function () {
-        d3.select(this)
-            .attr('animating', 'no')
-      })
+  if (d3.select(this).attr('selected') === 'true') {
+    var index = i      // capture index for using in x scales below
+    resetYTextSize(d)  // un-highlight y-axis note name
+    d3.select(this)
+        .transition()
+        .duration(250)
+        .attr('fill-opacity', constructionOpacity)
+        .attr('x', x(index))
+        .attr('y', function (d) { return y(d) })
+        .attr('width', x.rangeBand())
+        .attr('height', y.rangeBand())
+        .each('end', function () {
+          d3.select(this)
+              .attr('animating', 'no')
+        })
+  }
 }
 
 // this function will play the note
@@ -144,7 +146,6 @@ function resetYTextSize(note) {
       .transition()
       .duration(250)
       .attr('font-size', fontSize)
-      .attr('y', function (d) { return y(d.val) + y.rangeBand() / 2 })
 }
 
 // play note, highlight note, and set delete timeout
@@ -157,6 +158,7 @@ function constructionMouseDown (d, i) {
   if (d3.select(this).attr('animating') === 'no') {
     d3.select(this)
         // 1. highlight and grow
+        .attr('selected', 'true')
         .transition()
         .duration(50)
         .attr('fill-opacity', onClickNoteOpacity)
@@ -183,7 +185,14 @@ function constructionMouseDown (d, i) {
         .attr('width', x.rangeBand() * sizeBeforePop)
         .attr('height', y.rangeBand() * sizeBeforePop)
         // 4. delete up to this point and redraw
-        .each('end', function () { deleteToHere (index) })
+        .each('end', function () {
+          d3.select(this)
+              .attr('selected', 'false')
+          // prevent calling delete multiple times at once on multi-touch
+          if (d3.select(this).attr('animating') === 'no') {
+            deleteToHere (index)
+          }
+        })
   }
 }
 
@@ -192,6 +201,7 @@ function deleteToHere (index) {
   // set construction points to animating
   d3.select('.construction-notes').selectAll('rect')
       .attr('animating', 'yes')
+      .attr('selected', 'false')
   // disable choice mouse events
   d3.select('.choice-notes').selectAll('rect')
       .on('click', null)
