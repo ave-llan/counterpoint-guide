@@ -352,6 +352,26 @@ var cantusFirmusGuide = function (container) {
     }
   }
 
+  function enteringConstructionNotes (selection) {
+    selection
+        .attr('x', function (d, i) { return x(i) })
+        .attr('y', function (d) { return y(d) + choiceBoxYPadding() / 2 })
+        .attr('width', x.rangeBand())
+        .attr('height', y.rangeBand() - choiceBoxYPadding())
+        .attr('rx', 7)
+        .attr('ry', 7)
+        .attr('fill', unfinishedNoteColor)
+  }
+
+  function exitingConstructionNotes (transition) {
+    transition
+        .attr('x', x(cf.length() - 1))
+        .attr('y', y(cf.lastNote()))
+        .attr('width', x.rangeBand())
+        .attr('height', y.rangeBand())
+        .attr('fill', function () { return cf.isValid() ? finishedNoteColor : unfinishedNoteColor })
+  }
+
   // takes a reference to the choiceNotes group
   function appendChoices () {
   // add points of choices
@@ -426,14 +446,7 @@ var cantusFirmusGuide = function (container) {
 
     // add new note disguised as choice note, transition to construction note
     constructionPoints.enter().append('rect')
-        .attr('x', function (d, i) { return x(i) })
-        .attr('y', function (d) { return y(d) + choiceBoxYPadding() / 2 })
-        .attr('width', x.rangeBand())
-        .attr('height', y.rangeBand() - choiceBoxYPadding())
-        .attr('rx', 7)
-        .attr('ry', 7)
-        .attr('fill', '#c6dbef')
-        .attr('animating', 'yes')
+        .call(enteringConstructionNotes)
         .on('mousedown', constructionMouseDown)
         .on('touchstart', constructionMouseDown)
         .on('mouseup', constructionMouseUp)
@@ -448,11 +461,7 @@ var cantusFirmusGuide = function (container) {
     constructionPoints.exit()
         .transition()
         .duration(animationTime)
-        .attr('x', x(cf.length() - 1))
-        .attr('y', y(cf.lastNote()))
-        .attr('width', x.rangeBand())
-        .attr('height', y.rangeBand())
-        .attr('fill', function () { return cf.isValid() ? finishedNoteColor : unfinishedNoteColor })
+        .call(exitingConstructionNotes)
         .remove()
 
     // move construction to new position using updated scales
