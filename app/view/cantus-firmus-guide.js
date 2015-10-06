@@ -92,14 +92,16 @@ var cantusFirmusGuide = function (container) {
   var choiceBoxYPadding = function () { return y.rangeBand() * choicePadding }
 
   window.addEventListener('resize', function () {
-    console.log('old width:', container.node().offsetWidth)
+    var oldWidth = width
     container.select('svg')
         .attr('width', '100%')                                          // set to 100% to get the new width
     width = container.node().offsetWidth - margin.left - margin.right   // reset global width variable
     container.select('svg')
         .attr('width', width + margin.left + margin.right)              // reset whole svg width with new width
-    x.rangeRoundBands([yAxisWidth, width])                              // reset x scale range
-    redraw()                                                            // redraw
+    if (oldWidth !== width) {                                           // only if width changed:
+      x.rangeRoundBands([yAxisWidth, width])                            // reset x scale range
+      redraw()                                                          // redraw
+    }
   })
 
   // clear delete timeout and reset note size and opacity
