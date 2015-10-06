@@ -1,0 +1,45 @@
+{
+  "name": "counterpoint-guide",
+  "version": "0.0.0",
+  "description": "Interactive visual interface for writing counterpoint",
+  "main": "index.js",
+  "scripts": {
+    "test": "standard \"app/**/*.js\" && tape \"test/**/*.test.js\" | faucet",
+    "build": "browserify entry.js -o bundle.js",
+    "watch": "watchify entry.js -o bundle.js --debug --verbose",
+    "view": "reload -b",
+    "open": "npm run build && open index.html"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jrleszcz/counterpoint-guide.git"
+  },
+  "keywords": [
+    "counterpoint"
+  ],
+  "author": {
+    "name": "John Leszczynski",
+    "email": "jrleszczynski@gmail.com",
+    "url": "http://johnleszczynski.com"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/jrleszcz/counterpoint-guide/issues"
+  },
+  "homepage": "https://github.com/jrleszcz/counterpoint-guide#readme",
+  "devDependencies": {
+    "browserify": "^11.1.0",
+    "faucet": "0.0.1",
+    "reload": "^0.4.0",
+    "standard": "^5.3.1",
+    "tape": "^4.2.0",
+    "watchify": "^3.4.0"
+  },
+  "dependencies": {
+    "angular": "^1.4.6",
+    "counterpoint": "0.1.0",
+    "d3": "^3.5.6",
+    "deepcopy": "^0.5.0",
+    "nmusic": "^0.4.0"
+  }
+}
