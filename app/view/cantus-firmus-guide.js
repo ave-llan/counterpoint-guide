@@ -3,6 +3,9 @@ var CFguide = require('../model/cantus-firmus-maker.js')
 var Pitch = require('nmusic').Pitch
 var sortPitches = require('nmusic').sortPitches
 
+d3.select('counterpoint').append('svg')
+    .style('width', '100%')
+
 /**
  * Find a counterpoint element in the DOM, and read its attributes.
  * @returns {CFguide} a new cf guide configured with dom attributes
@@ -19,7 +22,7 @@ var cf = createCFfromDOM()
 //'E4 F4 C4 D4 F4 E4 G4 Bb3 C4 F4 E4 D4'.split(' ').forEach(cf.addNote)
 
 var margin = {top: 20, right: 10, bottom: 20, left: 10}
-var width = 800 - margin.left - margin.right
+var width = d3.select('counterpoint').node().offsetWidth - margin.left - margin.right
 var height = 450 - margin.top - margin.bottom
 var yAxisWidth = 44                  // space reserved for note names on y axis
 var pathWidth = 1                    // width of construction line
@@ -69,8 +72,7 @@ var constructionLine = d3.svg.line()
     .tension(0.7)
 
 // Create SVG element
-var svg = d3.select('counterpoint')
-  .append('svg')
+var svg = d3.select('counterpoint').select('svg')
     .attr('width', width + margin.left + margin.right)
     .attr('height', height + margin.top + margin.bottom)
     // if touched, disable mouseover
