@@ -22,7 +22,7 @@ var cantusFirmusGuide = function (container) {
 
       // svg dimensions
       totalWidth           = container.node().offsetWidth,             // set to 100% possible
-      totalHeight          = 450,
+      totalHeight          = container.attr('height') || 450,
       width                = totalWidth - margin.left - margin.right,
       height               = totalHeight - margin.top - margin.bottom,
 
