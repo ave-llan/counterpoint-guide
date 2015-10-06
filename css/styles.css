@@ -2,6 +2,10 @@
   -webkit-tap-highlight-color:transparent
 }
 
+testbox {
+  width: 500;
+}
+
 /* text of note names on y-axis */
 .y-axis-text text {
   font-family: sans-serif;
@@ -22,8 +26,6 @@
 /* path connecting the notes chosen so far */
 #construction-line {
   fill: none;
-  stroke: steelblue;
-  stroke-linecap: round;
   stroke-opacity: 1;
 }
 
