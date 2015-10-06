@@ -91,18 +91,16 @@ var cantusFirmusGuide = function (container) {
   // how much to pad choice boxes
   var choiceBoxYPadding = function () { return y.rangeBand() * choicePadding }
 
-
-
-  // onresize, reset x, y scales and svg dimensions
-  function resize () {
-    // reset global width
-    width = container.node().offsetWidth - margin.left - margin.right
-
-    // reset whole svg width with new width
+  window.addEventListener('resize', function () {
+    console.log('old width:', container.node().offsetWidth)
     container.select('svg')
-        .attr('width', width + margin.left + margin.right)
-
-  }
+        .attr('width', '100%')                                          // set to 100% to get the new width
+    width = container.node().offsetWidth - margin.left - margin.right   // reset global width variable
+    container.select('svg')
+        .attr('width', width + margin.left + margin.right)              // reset whole svg width with new width
+    x.rangeRoundBands([yAxisWidth, width])                              // reset x scale range
+    redraw()                                                            // redraw
+  })
 
   // clear delete timeout and reset note size and opacity
   function constructionMouseUp (d, i) {
@@ -519,7 +517,7 @@ var cantusFirmusGuide = function (container) {
 
     appendChoices()
   }
-  redraw()
+  redraw() // initialize
 }
 
 d3.selectAll('counterpoint')
