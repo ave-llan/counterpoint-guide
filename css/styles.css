@@ -1,10 +1,6 @@
-* {
-  -webkit-tap-highlight-color:transparent
-}
-
 
 /* text of note names on y-axis */
-.y-axis-text text {
+.y-axis-text {
   font-family: sans-serif;
   pointer-events: none;
   -webkit-touch-callout: none;
@@ -15,29 +11,3 @@
   user-select: none;
 }
 
-
-/*******************************************
- * The current construction (chosen notes) *
- *******************************************/
-
-/* path connecting the notes chosen so far */
-#construction-line {
-  fill: none;
-  stroke-opacity: 1;
-}
-
-/* the circles showing notes chosen so far */
-.construction-notes rect {
-  stroke: steelblue;
-  stroke-width: 0;
-  stroke-opacity: 1;
-}
-
-/*******************************************
- * The choices                             *
- *******************************************/
-
-/* the circles showing next note choices */
-.choice-notes rect {
-  fill: #c6dbef;
-}

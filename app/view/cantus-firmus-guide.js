@@ -17,6 +17,7 @@ var cantusFirmusGuide = function (container) {
   // set intial width to 100% to get actual width
   var svg = container.append('svg')
                 .attr('width', '100%')
+                .style('-webkit-tap-highlight-color', 'transparent')   // hide webkit taps
 
   var margin               = {top: 20, right: 20, bottom: 20, left: 10},
 
@@ -67,6 +68,7 @@ var cantusFirmusGuide = function (container) {
       .attr('id', 'construction-line')
       .attr('stroke-width', pathWidth)
       .attr('stroke-linecap', 'round')
+      .attr('fill', 'none')
       .attr('stroke', pathColor)
   svg.append('g')
       .attr('class', 'construction-notes')
@@ -259,6 +261,7 @@ var cantusFirmusGuide = function (container) {
         .attr('fill-opacity', 0)
         .attr('rx', 7)
         .attr('ry', 7)
+        .attr('fill', unfinishedNoteColor)
         .attr('animating', 'yes') // set to 'no' when finished moving
   }
 
