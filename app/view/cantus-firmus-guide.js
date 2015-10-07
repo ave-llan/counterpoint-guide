@@ -355,6 +355,16 @@ var cantusFirmusGuide = function (container) {
     }
   }
 
+  function enteringYtext (selection) {
+    selection
+        .text(function (d) { return Pitch(d.val).pitchClass() })
+        .attr('font-size', fontSize)
+        .attr('text-anchor', 'start')
+        .attr('dominant-baseline', 'central')
+        .attr('x', -50)
+        .attr('y', function (d) { return y(d.val) + y.rangeBand() / 2 })
+  }
+
   function enteringConstructionNotes (selection) {
     selection
         .attr('x', function (d, i) { return x(i) })
@@ -507,14 +517,9 @@ var cantusFirmusGuide = function (container) {
         .attr('font-size', fontSize)
     yText.enter()
         .append('text')
-        .text(function (d) { return Pitch(d.val).pitchClass() })
-        .attr('font-size', fontSize)
-        .attr('text-anchor', 'start')
-        .attr('dominant-baseline', 'central')
-        .attr('x', -50)
-        .attr('y', function (d) { return y(d.val) + y.rangeBand() / 2 })
+        .call(enteringYtext)
         .transition()
-        .delay(function (d) { // try to match incoming choice notes
+        .delay(function (d) { // match incoming choice notes on this note
           return animationTime + (Pitch(d.val).intervalSize(cf.lastNote()) * choiceAnimationTime / 6)
         })
         .duration(choiceAnimationTime)
