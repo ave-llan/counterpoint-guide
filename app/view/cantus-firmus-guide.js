@@ -2,6 +2,19 @@ var d3 = require('d3')
 var CFguide = require('../model/cantus-firmus-maker.js')
 var Pitch = require('nmusic').Pitch
 var sortPitches = require('nmusic').sortPitches
+var Tone = require('tone')
+
+var synth
+
+function createSynth() {
+  synth = new Tone.SimpleSynth().toMaster()
+}
+
+function playNote(note) {
+  if (!synth) createSynth()
+  synth.triggerAttackRelease(note, "8n")
+}
+//var synth = new Tone.SimpleSynth().toMaster()
 
 /**
  * Takes a D3 selection into which the interactive guide will be inserted.
@@ -126,11 +139,6 @@ var cantusFirmusGuide = function (container) {
     }
   }
 
-  // this function will play the note
-  function playNote (note) {
-    console.log('Played:', note)
-  }
-
   function highlightYtext(note) {
     svg.select('.y-axis-text').selectAll('text')
         .filter(function (d) { return d.val === note })
@@ -166,11 +174,10 @@ var cantusFirmusGuide = function (container) {
 
   // play note, highlight note, and delete if held
   function constructionMouseDown (d, i) {
-    d3.event.preventDefault()   // prevent default selection
     var xIndex = i              // capture index for using in x scales below
     var note = d
-
     playNote(note)                 // play the note
+    d3.event.preventDefault()   // prevent default selection
     highlightYtext(note)           // highlight y axis text
     if (d3.select(this).attr('animating') === 'no') {
       d3.select(this)
@@ -299,11 +306,12 @@ var cantusFirmusGuide = function (container) {
 
   // play note, highlight note, and delete if held
   function choiceMouseDown (d, i) {
-    d3.event.preventDefault()   // prevent default selection
     var xIndex = cf.length()    // index for use in x scales below
     var note = d.val
-    playNote(note)                 // play the note
-    highlightYtext(note)           // highlight y axis text
+    playNote(note)              // play the note
+    d3.event.preventDefault()   // prevent default selection
+
+    highlightYtext(note)        // highlight y axis text
     if (d3.select(this).attr('animating') === 'no') {
       d3.select(this)
           // 1. highlight and grow
