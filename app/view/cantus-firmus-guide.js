@@ -511,7 +511,6 @@ var cantusFirmusGuide = function (container) {
     // update remaining
     yText.transition()
         .duration(animationTime)
-        .text(function (d) { return Pitch(d.val).pitchClass() })
         .attr('x', 0)
         .attr('y', function (d) { return y(d.val) + y.rangeBand() / 2 })
         .attr('font-size', fontSize)
