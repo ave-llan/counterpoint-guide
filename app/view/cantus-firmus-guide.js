@@ -6,6 +6,11 @@ var Tone = require('tone')
 
 var synth
 
+d3.select('body').append('p').text('Click here to start sound.').on('touchend', function () {
+  createSynth()
+  playNote('C4')
+})
+
 function createSynth() {
   synth = new Tone.SimpleSynth().toMaster()
 }
@@ -33,6 +38,8 @@ var cantusFirmusGuide = function (container) {
                 .style('-webkit-tap-highlight-color', 'transparent')   // hide webkit taps
 
   var margin               = {top: 20, right: 20, bottom: 20, left: 10},
+
+      iconSize             = 40,
 
       // svg dimensions
       totalWidth           = container.node().offsetWidth,             // set to 100% possible
@@ -75,6 +82,31 @@ var cantusFirmusGuide = function (container) {
               touchDetected = true
               d3.select(this).on('touchstart', null) // remove this listener after touch
             })
+
+  // append volume icon
+  var soundIcon = svg.append('image')
+      .attr('x', width - iconSize)
+      .attr('y', 0)
+      .attr('width', iconSize)
+      .attr('height', iconSize)
+      .attr('soundOn', 'false')
+      .attr('xlink:href', '../resources/sound_off.svg')
+      .attr('opacity', 0.5)
+      .on('click', function () {
+        icon = d3.select(this)
+        if (icon.attr('soundOn') === 'true') {
+          icon
+              .attr('xlink:href', '../resources/sound_off.svg')
+              .attr('soundOn', 'false')
+
+        } else {
+          icon
+              .attr('xlink:href', '../resources/sound_on.svg')
+              .attr('soundOn', 'true')
+        }
+      })
+
+
 
   // append path, note containers, and y axis container
   svg.append('path')
