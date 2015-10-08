@@ -78,6 +78,21 @@ var cantusFirmusGuide = function (container) {
               d3.select(this).on('touchstart', null) // remove this listener after touch
             })
 
+  // append path, note containers, and y axis container
+  svg.append('path')
+      .attr('id', 'construction-line')
+      .attr('stroke-width', pathWidth)
+      .attr('stroke-linecap', 'round')
+      .attr('fill', 'none')
+      .attr('stroke', pathColor)
+  svg.append('g')
+      .attr('class', 'construction-notes')
+  svg.append('g')
+      .attr('class', 'y-axis-text')
+  svg.append('g')
+      .attr('class', 'choice-notes')
+
+  // define drag behavior for sound icon
   var drag = d3.behavior.drag()
       .origin(function () {
         var coordinates = d3.transform(d3.select(this).attr('transform')).translate
@@ -121,29 +136,12 @@ var cantusFirmusGuide = function (container) {
       .attr('xlink:href', '../resources/sound_off.svg')
       .attr('opacity', 0.25)
 
-
   soundIcon.append('image')
       .attr('id', 'sound-on-icon')
       .attr('width', iconSize)
       .attr('height', iconSize)
       .attr('xlink:href', '../resources/sound_on.svg')
       .attr('opacity', 0)
-
-
-
-  // append path, note containers, and y axis container
-  svg.append('path')
-      .attr('id', 'construction-line')
-      .attr('stroke-width', pathWidth)
-      .attr('stroke-linecap', 'round')
-      .attr('fill', 'none')
-      .attr('stroke', pathColor)
-  svg.append('g')
-      .attr('class', 'construction-notes')
-  svg.append('g')
-      .attr('class', 'y-axis-text')
-  svg.append('g')
-      .attr('class', 'choice-notes')
 
   // declare scales and line
   var x                = d3.scale.ordinal()
