@@ -70,7 +70,8 @@ var cantusFirmusGuide = function (container) {
       animationTime        = 300,         // animation time to re-scale
       choiceAnimationTime  = 500          // animation time for choices to appear
 
-  var touchDetected        = false        // has the SVG received a touchevent? if so, disable mousover
+  var touchDetected        = false,       // has the SVG received a touchevent? if so, disable mousover
+      soundOn              = false        // is the sound on?
 
   // set svg dimensions
   svg.attr('width', totalWidth)
@@ -86,22 +87,13 @@ var cantusFirmusGuide = function (container) {
   // append volume icon
   var soundIcon = svg.append('g')
       .attr('transform', 'translate(' + (width - iconSize) + ', 0)')
-      .attr('soundOn', 'false')
       .on('click', function () {
+        soundOn = !soundOn        // flip soundOn value
         icon = d3.select(this)
-        if (icon.attr('soundOn') === 'true') {
-          icon.attr('soundOn', 'false')
-          icon.select('#sound-off-icon')
-              .attr('opacity', 0.25)
-          icon.select('#sound-on-icon')
-              .attr('opacity', 0)
-        } else {
-          icon.attr('soundOn', 'true')
-          icon.select('#sound-off-icon')
-              .attr('opacity', 0)
-          icon.select('#sound-on-icon')
-              .attr('opacity', 0.25)
-        }
+        icon.select('#sound-off-icon')
+            .attr('opacity', soundOn ? 0 : 0.25)
+        icon.select('#sound-on-icon')
+            .attr('opacity', soundOn ? 0.25 : 0)
       })
 
   soundIcon.append('image')
@@ -224,7 +216,9 @@ var cantusFirmusGuide = function (container) {
   function constructionMouseDown (d, i) {
     var xIndex = i              // capture index for using in x scales below
     var note = d
-    playNote(note)                 // play the note
+    if (soundOn) {
+      playNote(note)                 // play the note
+    }
     d3.event.preventDefault()   // prevent default selection
     highlightYtext(note)           // highlight y axis text
     if (d3.select(this).attr('animating') === 'no') {
@@ -356,7 +350,9 @@ var cantusFirmusGuide = function (container) {
   function choiceMouseDown (d, i) {
     var xIndex = cf.length()    // index for use in x scales below
     var note = d.val
-    playNote(note)              // play the note
+    if (soundOn) {
+      playNote(note)
+    }
     d3.event.preventDefault()   // prevent default selection
 
     highlightYtext(note)        // highlight y axis text
