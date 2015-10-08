@@ -7,12 +7,32 @@ var Tone = require('tone')
 var synth
 
 function createSynth() {
-  synth = new Tone.SimpleSynth().toMaster()
+  synth = new Tone.PolySynth(6, Tone.SimpleSynth)
+      .set({
+    oscillator: {
+                  type: 'sine'
+                },
+      envelope: {
+                   attack: 0.6,
+                    decay: 0.1,
+                  sustain: 0.9,
+                  release: 0.6
+                }
+  }).toMaster()
 }
 
 function playNote(note) {
   if (!synth) createSynth()
-  synth.triggerAttackRelease(note, "8n")
+  synth.triggerAttackRelease(note,        // pitch
+                              0.3,        // duration in seconds
+                              undefined,  // delay to attack in seconds (defaults to none)
+                              0.4)        // velocity
+  /*
+  synth.triggerAttack(note, undefined, 0.5)
+  window.setTimeout(function () {
+    synth.triggerRelease(note)
+  }, 5000)
+*/
 }
 
 /**
@@ -117,7 +137,7 @@ var cantusFirmusGuide = function (container) {
           soundOn = !soundOn        // flip soundOn value
           if (!synth) {
             createSynth()
-            playNote('C4')
+            //playNote('C4')
           }
           icon.select('#sound-off-icon')
               .attr('opacity', soundOn ? 0 : 0.25)
@@ -128,8 +148,6 @@ var cantusFirmusGuide = function (container) {
       .call(drag)
 
   soundIcon.append('image')
-      //.attr('x', width - iconSize)
-      //.attr('y', 0)
       .attr('id', 'sound-off-icon')
       .attr('width', iconSize)
       .attr('height', iconSize)
