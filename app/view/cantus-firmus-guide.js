@@ -6,11 +6,6 @@ var Tone = require('tone')
 
 var synth
 
-d3.select('body').append('p').text('Click here to start sound.').on('touchend', function () {
-  createSynth()
-  playNote('C4')
-})
-
 function createSynth() {
   synth = new Tone.SimpleSynth().toMaster()
 }
@@ -19,7 +14,6 @@ function playNote(note) {
   if (!synth) createSynth()
   synth.triggerAttackRelease(note, "8n")
 }
-//var synth = new Tone.SimpleSynth().toMaster()
 
 /**
  * Takes a D3 selection into which the interactive guide will be inserted.
