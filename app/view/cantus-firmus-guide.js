@@ -84,27 +84,42 @@ var cantusFirmusGuide = function (container) {
             })
 
   // append volume icon
-  var soundIcon = svg.append('image')
-      .attr('x', width - iconSize)
-      .attr('y', 0)
-      .attr('width', iconSize)
-      .attr('height', iconSize)
+  var soundIcon = svg.append('g')
+      .attr('transform', 'translate(' + (width - iconSize) + ', 0)')
       .attr('soundOn', 'false')
-      .attr('xlink:href', '../resources/sound_off.svg')
-      .attr('opacity', 0.5)
       .on('click', function () {
         icon = d3.select(this)
         if (icon.attr('soundOn') === 'true') {
-          icon
-              .attr('xlink:href', '../resources/sound_off.svg')
-              .attr('soundOn', 'false')
-
+          icon.attr('soundOn', 'false')
+          icon.select('#sound-off-icon')
+              .attr('opacity', 0.25)
+          icon.select('#sound-on-icon')
+              .attr('opacity', 0)
         } else {
-          icon
-              .attr('xlink:href', '../resources/sound_on.svg')
-              .attr('soundOn', 'true')
+          icon.attr('soundOn', 'true')
+          icon.select('#sound-off-icon')
+              .attr('opacity', 0)
+          icon.select('#sound-on-icon')
+              .attr('opacity', 0.25)
         }
       })
+
+  soundIcon.append('image')
+      //.attr('x', width - iconSize)
+      //.attr('y', 0)
+      .attr('id', 'sound-off-icon')
+      .attr('width', iconSize)
+      .attr('height', iconSize)
+      .attr('xlink:href', '../resources/sound_off.svg')
+      .attr('opacity', 0.25)
+
+
+  soundIcon.append('image')
+      .attr('id', 'sound-on-icon')
+      .attr('width', iconSize)
+      .attr('height', iconSize)
+      .attr('xlink:href', '../resources/sound_on.svg')
+      .attr('opacity', 0)
 
 
 
