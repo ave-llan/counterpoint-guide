@@ -161,6 +161,7 @@ var cantusFirmusGuide = function (container) {
     container.select('svg')
         .attr('width', width + margin.left + margin.right)              // reset whole svg width with new width
     if (oldWidth !== width) {                                           // only if width changed:
+      soundIcon.attr('transform', 'translate(' + (width - iconSize) + ', 0)')
       x.rangeRoundBands([yAxisWidth, width])                            // reset x scale range
       redraw()                                                          // redraw
     }
