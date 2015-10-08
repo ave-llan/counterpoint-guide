@@ -84,17 +84,39 @@ var cantusFirmusGuide = function (container) {
               d3.select(this).on('touchstart', null) // remove this listener after touch
             })
 
+  var drag = d3.behavior.drag()
+      .origin(function () {
+        var coordinates = d3.transform(d3.select(this).attr('transform')).translate
+        return { x: coordinates[0], y: coordinates[1] }
+      })
+      .on('drag', function () {
+        d3.select(this)
+            .attr('transform', 'translate(' +
+                    Math.max(iconSize / 2, Math.min(width - iconSize / 2, d3.event.x)) + ',' +
+                    Math.max(0, Math.min(height - iconSize / 2, d3.event.y)) + ')')
+            .attr('no-click', 'true')
+      })
+
   // append volume icon
   var soundIcon = svg.append('g')
       .attr('transform', 'translate(' + (width - iconSize) + ', 0)')
       .on('click', function () {
-        soundOn = !soundOn        // flip soundOn value
-        icon = d3.select(this)
-        icon.select('#sound-off-icon')
-            .attr('opacity', soundOn ? 0 : 0.25)
-        icon.select('#sound-on-icon')
-            .attr('opacity', soundOn ? 0.25 : 0)
+        var icon = d3.select(this)
+        if (icon.attr('no-click') === 'true') {
+          icon.attr('no-click', 'false')
+        } else {
+          soundOn = !soundOn        // flip soundOn value
+          if (!synth) {
+            createSynth()
+            playNote('C4')
+          }
+          icon.select('#sound-off-icon')
+              .attr('opacity', soundOn ? 0 : 0.25)
+          icon.select('#sound-on-icon')
+              .attr('opacity', soundOn ? 0.25 : 0)
+        }
       })
+      .call(drag)
 
   soundIcon.append('image')
       //.attr('x', width - iconSize)
