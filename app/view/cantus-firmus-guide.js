@@ -16,7 +16,7 @@ function createSynth() {
                    attack: 0.6,
                     decay: 0.1,
                   sustain: 0.9,
-                  release: 0.6
+                  release: 0.2
                 }
   }).toMaster()
 }
@@ -26,13 +26,7 @@ function playNote(note) {
   synth.triggerAttackRelease(note,        // pitch
                               0.3,        // duration in seconds
                               undefined,  // delay to attack in seconds (defaults to none)
-                              0.4)        // velocity
-  /*
-  synth.triggerAttack(note, undefined, 0.5)
-  window.setTimeout(function () {
-    synth.triggerRelease(note)
-  }, 5000)
-*/
+                              0.8)        // velocity
 }
 
 /**
