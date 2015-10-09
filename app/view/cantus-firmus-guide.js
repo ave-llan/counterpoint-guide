@@ -47,7 +47,10 @@ var cantusFirmusGuide = function (container) {
 
   var margin               = {top: 20, right: 20, bottom: 20, left: 10},
 
-      iconSize             = 40,
+      iconSize             = 40,          // width of each icon
+      iconPadding          = 10,          // padding between each icon
+      numIcons             = 2,           // currently sound and playback buttons
+      menuIconWidth        = (iconSize + iconPadding) * numIcons - iconPadding,
 
       // svg dimensions
       totalWidth           = container.node().offsetWidth,             // set to 100% possible
@@ -115,18 +118,21 @@ var cantusFirmusGuide = function (container) {
       .on('drag', function () {
         d3.select(this)
             .attr('transform', 'translate(' +
-                    Math.max(iconSize / 2, Math.min(width - iconSize / 2, d3.event.x)) + ',' +
-                    Math.max(0, Math.min(height - iconSize / 2, d3.event.y)) + ')')
+                    Math.max(menuIconWidth / 2, Math.min(width - menuIconWidth / 2, d3.event.x)) + ',' +
+                    Math.max(0, Math.min(height - menuIconWidth / 2, d3.event.y)) + ')')
             .attr('no-click', 'true')
       })
 
+  var menuIcons = svg.append('g')
+      .attr('transform', 'translate(' + (width - menuIconWidth) + ', 0)')
+      .call(drag)
+
   // append volume icon
-  var soundIcon = svg.append('g')
-      .attr('transform', 'translate(' + (width - iconSize) + ', 0)')
+  var soundIcon = menuIcons.append('g')
       .on('click', function () {
         var icon = d3.select(this)
-        if (icon.attr('no-click') === 'true') {
-          icon.attr('no-click', 'false')
+        if (menuIcons.attr('no-click') === 'true') {
+          menuIcons.attr('no-click', 'false')
         } else {
           soundOn = !soundOn        // flip soundOn value
           if (!synth) {
@@ -139,7 +145,6 @@ var cantusFirmusGuide = function (container) {
               .attr('opacity', soundOn ? 0.25 : 0)
         }
       })
-      .call(drag)
 
   soundIcon.append('image')
       .attr('id', 'sound-off-icon')
@@ -154,6 +159,9 @@ var cantusFirmusGuide = function (container) {
       .attr('height', iconSize)
       .attr('xlink:href', '../resources/sound_on.svg')
       .attr('opacity', 0)
+
+  var playbackIcon = menuIcons.append('g')
+      .attr('transform', 'translate(' + (iconSize))
 
   // declare scales and line
   var x                = d3.scale.ordinal()
@@ -179,7 +187,7 @@ var cantusFirmusGuide = function (container) {
     container.select('svg')
         .attr('width', width + margin.left + margin.right)              // reset whole svg width with new width
     if (oldWidth !== width) {                                           // only if width changed:
-      soundIcon.attr('transform', 'translate(' + (width - iconSize) + ', 0)')
+      menuIcons.attr('transform', 'translate(' + (width - menuIconWidth) + ', 0)')
       x.rangeRoundBands([yAxisWidth, width])                            // reset x scale range
       redraw()                                                          // redraw
     }
