@@ -86,7 +86,8 @@ var cantusFirmusGuide = function (container) {
 
   var touchDetected        = false,       // has the SVG received a touchevent? if so, disable mousover
       soundOn              = false,       // is the sound on?
-      beingPlayedBack      = false        // is playback currently happening?
+      beingPlayedBack      = false,       // is playback currently happening?
+      animatingAll         = false        // is everything being redrawn?
 
   // set svg dimensions
   svg.attr('width', totalWidth)
@@ -210,38 +211,38 @@ var cantusFirmusGuide = function (container) {
     if (beingPlayedBack && index < cf.length()) {
       var note = cf.construction()[index]
       playNote(note)
-      highlightYtext(note)           // highlight y axis text
-      var noteSelection = d3.select(constructionNotesGroup.selectAll('rect')[0][index])
-      if (noteSelection.attr('animating') === 'no') {
-        noteSelection
-            // 1. highlight and grow
-            .attr('selected', 'true')
-            .transition()
-            .duration(50)
-            .call(growNoteOnTap, index, note)
-            // 2. delay for a moment
-            .transition()
-            .delay(200)
-            // 3. rapidly grow in preparation for delete
-            // 4. delete up to this point and redraw
-            .each('end', function () {
-              resetYTextSize(note)
-              noteSelection
-                  .attr('selected', 'false')
-                  .transition()
-                  .duration(250)
-                  .attr('fill-opacity', constructionOpacity)
-                  .attr('x', x(index))
-                  .attr('y', function (d) { return y(d) })
-                  .attr('width', x.rangeBand())
-                  .attr('height', y.rangeBand())
-                  .each('end', function () {
-                    d3.select(this)
-                        .attr('animating', 'no')
-                  })
-            })
+      if (!animatingAll) {
+        highlightYtext(note)           // highlight y axis text
+        var noteSelection = d3.select(constructionNotesGroup.selectAll('rect')[0][index])
+        if (noteSelection.attr('animating') === 'no') {
+          noteSelection
+              // 1. highlight and grow
+              .attr('selected', 'true')
+              .transition()
+              .duration(50)
+              .call(growNoteOnTap, index, note)
+              // 2. delay for a moment
+              .transition()
+              .delay(200)
+              // 3. go back to normal
+              .each('end', function () {
+                resetYTextSize(note)
+                noteSelection
+                    .attr('selected', 'false')
+                    .transition()
+                    .duration(250)
+                    .attr('fill-opacity', constructionOpacity)
+                    .attr('x', x(index))
+                    .attr('y', function (d) { return y(d) })
+                    .attr('width', x.rangeBand())
+                    .attr('height', y.rangeBand())
+                    .each('end', function () {
+                      d3.select(this)
+                          .attr('animating', 'no')
+                    })
+              })
+        }
       }
-
       window.setTimeout(function () {
         playBackConstruction(index + 1)
       }, timeBetweenNotes)
@@ -616,6 +617,7 @@ var cantusFirmusGuide = function (container) {
   }
 
   function redraw () {
+    animatingAll = true
     // unselect all notes to prevent any touch-end or mouse-off events
     svg.select('.construction-notes').selectAll('rect')
         .attr('selected', 'false')
@@ -625,6 +627,7 @@ var cantusFirmusGuide = function (container) {
     // before updating scales, use old scale to new point and extend path
     // create note in choice position for animation
     var constructionPoints = svg.select('.construction-notes').selectAll('rect')
+        .attr('animating', 'yes')
         .data(cf.construction())
 
     var chosenLine = svg.select('#construction-line')
@@ -633,6 +636,7 @@ var cantusFirmusGuide = function (container) {
 
     // add new note disguised as choice note, transition to construction note
     constructionPoints.enter().append('rect')
+        .attr('animating', 'yes')
         .call(enteringConstructionNotes)
         .on('mousedown', constructionMouseDown)
         .on('touchstart', constructionMouseDown)
@@ -658,6 +662,7 @@ var cantusFirmusGuide = function (container) {
         .each('end', function () {
           d3.select(this)
               .attr('animating', 'no')
+              animatingAll = false
         })
 
     // update construction line with new scales
