@@ -82,7 +82,8 @@ var cantusFirmusGuide = function (container) {
       choiceAnimationTime  = 500          // animation time for choices to appear
 
   var touchDetected        = false,       // has the SVG received a touchevent? if so, disable mousover
-      soundOn              = false        // is the sound on?
+      soundOn              = false,       // is the sound on?
+      beingPlayedBack      = false        // is playback currently happening?
 
   // set svg dimensions
   svg.attr('width', totalWidth)
@@ -132,7 +133,6 @@ var cantusFirmusGuide = function (container) {
   var soundIcon = menuIcons.append('g')
       .attr('class', 'sound-icon')
       .on('click', function () {
-        var icon = d3.select(this)
         if (menuIcons.attr('no-click') === 'true') {
           menuIcons.attr('no-click', 'false')
         } else {
@@ -141,21 +141,21 @@ var cantusFirmusGuide = function (container) {
             createSynth()
             //playNote('C4')
           }
-          icon.select('#sound-off-icon')
+          soundOffIcon
               .attr('opacity', soundOn ? 0 : 0.25)
-          icon.select('#sound-on-icon')
+          soundOnIcon
               .attr('opacity', soundOn ? 0.25 : 0)
         }
       })
 
-  soundIcon.append('image')
+  var soundOffIcon = soundIcon.append('image')
       .attr('id', 'sound-off-icon')
       .attr('width', iconSize)
       .attr('height', iconSize)
       .attr('xlink:href', '../resources/sound_off.svg')
       .attr('opacity', 0.25)
 
-  soundIcon.append('image')
+  var soundOnIcon = soundIcon.append('image')
       .attr('id', 'sound-on-icon')
       .attr('width', iconSize)
       .attr('height', iconSize)
@@ -165,13 +165,35 @@ var cantusFirmusGuide = function (container) {
   var playbackIcon = menuIcons.append('g')
       .attr('class', 'playback-icon')
       .attr('transform', 'translate(' + (iconSize + iconPadding) + ', 0)')
+      .on('click', function () {
+        var icon = d3.select(this)
+        if (menuIcons.attr('no-click') === 'true') {
+          menuIcons.attr('no-click', 'false')
+        } else {
+          beingPlayedBack = !beingPlayedBack        // flip soundOn value
+          if (!synth) {
+            createSynth()
+          }
+          playIcon
+              .attr('opacity', beingPlayedBack ? 0 : 0.25)
+          stopIcon
+              .attr('opacity', beingPlayedBack ? 0.25 : 0)
+        }
+      })
 
-  playbackIcon.append('image')
+  var playIcon = playbackIcon.append('image')
       .attr('id', 'play-icon')
       .attr('width', iconSize)
       .attr('height', iconSize)
       .attr('xlink:href', '../resources/play.svg')
       .attr('opacity', 0.25)
+
+  var stopIcon = playbackIcon.append('image')
+      .attr('id', 'stop-icon')
+      .attr('width', iconSize)
+      .attr('height', iconSize)
+      .attr('xlink:href', '../resources/stop.svg')
+      .attr('opacity', 0)
 
 
   // declare scales and line
