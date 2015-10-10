@@ -118,7 +118,7 @@ var cantusFirmusGuide = function (container) {
       .on('drag', function () {
         d3.select(this)
             .attr('transform', 'translate(' +
-                    Math.max(menuIconWidth / 2, Math.min(width - menuIconWidth / 2, d3.event.x)) + ',' +
+                    Math.max(menuIconWidth / 2, Math.min(width - menuIconWidth, d3.event.x)) + ',' +
                     Math.max(0, Math.min(height - menuIconWidth / 2, d3.event.y)) + ')')
             .attr('no-click', 'true')
       })
