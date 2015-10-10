@@ -100,17 +100,17 @@ var cantusFirmusGuide = function (container) {
             })
 
   // append path, note containers, and y axis container
-  svg.append('path')
+  var constructionPathGroup = svg.append('path')
       .attr('id', 'construction-line')
       .attr('stroke-width', pathWidth)
       .attr('stroke-linecap', 'round')
       .attr('fill', 'none')
       .attr('stroke', pathColor)
-  svg.append('g')
+  var constructionNotesGroup = svg.append('g')
       .attr('class', 'construction-notes')
-  svg.append('g')
+  var yAxisTextGroup = svg.append('g')
       .attr('class', 'y-axis-text')
-  svg.append('g')
+  var choiceNotesGroup = svg.append('g')
       .attr('class', 'choice-notes')
 
   // define drag behavior for sound icon
@@ -211,7 +211,7 @@ var cantusFirmusGuide = function (container) {
       var note = cf.construction()[index]
       playNote(note)
       highlightYtext(note)           // highlight y axis text
-      var noteSelection = d3.select(d3.select('.construction-notes').selectAll('rect')[0][index])
+      var noteSelection = d3.select(constructionNotesGroup.selectAll('rect')[0][index])
       if (noteSelection.attr('animating') === 'no') {
         noteSelection
             // 1. highlight and grow
