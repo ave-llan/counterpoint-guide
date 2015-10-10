@@ -208,7 +208,40 @@ var cantusFirmusGuide = function (container) {
   // playback construction starting at the current index
   var playBackConstruction = function (index) {
     if (beingPlayedBack && index < cf.length()) {
-      playNote(cf.construction()[index])
+      var note = cf.construction()[index]
+      playNote(note)
+      highlightYtext(note)           // highlight y axis text
+      var noteSelection = d3.select(d3.select('.construction-notes').selectAll('rect')[0][index])
+      if (noteSelection.attr('animating') === 'no') {
+        noteSelection
+            // 1. highlight and grow
+            .attr('selected', 'true')
+            .transition()
+            .duration(50)
+            .call(growNoteOnTap, index, note)
+            // 2. delay for a moment
+            .transition()
+            .delay(200)
+            // 3. rapidly grow in preparation for delete
+            // 4. delete up to this point and redraw
+            .each('end', function () {
+              resetYTextSize(note)
+              noteSelection
+                  .attr('selected', 'false')
+                  .transition()
+                  .duration(250)
+                  .attr('fill-opacity', constructionOpacity)
+                  .attr('x', x(index))
+                  .attr('y', function (d) { return y(d) })
+                  .attr('width', x.rangeBand())
+                  .attr('height', y.rangeBand())
+                  .each('end', function () {
+                    d3.select(this)
+                        .attr('animating', 'no')
+                  })
+            })
+      }
+
       window.setTimeout(function () {
         playBackConstruction(index + 1)
       }, timeBetweenNotes)
