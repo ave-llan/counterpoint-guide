@@ -48,7 +48,7 @@ var cantusFirmusGuide = function (container) {
   var margin               = {top: 20, right: 20, bottom: 20, left: 10},
 
       iconSize             = 40,          // width of each icon
-      iconPadding          = 10,          // padding between each icon
+      iconPadding          = 5,           // padding between each icon
       numIcons             = 2,           // currently sound and playback buttons
       menuIconWidth        = (iconSize + iconPadding) * numIcons - iconPadding,
 
@@ -79,7 +79,10 @@ var cantusFirmusGuide = function (container) {
 
       // animation speeds
       animationTime        = 300,         // animation time to re-scale
-      choiceAnimationTime  = 500          // animation time for choices to appear
+      choiceAnimationTime  = 500,         // animation time for choices to appear
+
+      // playback times
+      timeBetweenNotes     = 500         // ms between notes on playback
 
   var touchDetected        = false,       // has the SVG received a touchevent? if so, disable mousover
       soundOn              = false,       // is the sound on?
@@ -174,10 +177,10 @@ var cantusFirmusGuide = function (container) {
           if (!synth) {
             createSynth()
           }
-          playIcon
-              .attr('opacity', beingPlayedBack ? 0 : 0.25)
-          stopIcon
-              .attr('opacity', beingPlayedBack ? 0.25 : 0)
+          if (beingPlayedBack) {
+            playBackConstruction(0)
+          }
+          updatePlaybackIcon()
         }
       })
 
@@ -195,6 +198,25 @@ var cantusFirmusGuide = function (container) {
       .attr('xlink:href', '../resources/stop.svg')
       .attr('opacity', 0)
 
+  var updatePlaybackIcon = function () {
+    playIcon
+        .attr('opacity', beingPlayedBack ? 0 : 0.25)
+    stopIcon
+        .attr('opacity', beingPlayedBack ? 0.25 : 0)
+  }
+
+  // playback construction starting at the current index
+  var playBackConstruction = function (index) {
+    if (beingPlayedBack && index < cf.length()) {
+      playNote(cf.construction()[index])
+      window.setTimeout(function () {
+        playBackConstruction(index + 1)
+      }, timeBetweenNotes)
+    } else {
+      beingPlayedBack = false
+      updatePlaybackIcon()
+    }
+  }
 
   // declare scales and line
   var x                = d3.scale.ordinal()
