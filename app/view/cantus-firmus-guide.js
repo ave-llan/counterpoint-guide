@@ -124,11 +124,13 @@ var cantusFirmusGuide = function (container) {
       })
 
   var menuIcons = svg.append('g')
+      .attr('class', 'menu-icons')
       .attr('transform', 'translate(' + (width - menuIconWidth) + ', 0)')
       .call(drag)
 
   // append volume icon
   var soundIcon = menuIcons.append('g')
+      .attr('class', 'sound-icon')
       .on('click', function () {
         var icon = d3.select(this)
         if (menuIcons.attr('no-click') === 'true') {
@@ -161,7 +163,16 @@ var cantusFirmusGuide = function (container) {
       .attr('opacity', 0)
 
   var playbackIcon = menuIcons.append('g')
-      .attr('transform', 'translate(' + (iconSize))
+      .attr('class', 'playback-icon')
+      .attr('transform', 'translate(' + (iconSize + iconPadding) + ', 0)')
+
+  playbackIcon.append('image')
+      .attr('id', 'play-icon')
+      .attr('width', iconSize)
+      .attr('height', iconSize)
+      .attr('xlink:href', '../resources/play.svg')
+      .attr('opacity', 0.25)
+
 
   // declare scales and line
   var x                = d3.scale.ordinal()
