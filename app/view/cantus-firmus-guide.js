@@ -276,7 +276,11 @@ var cantusFirmusGuide = function (container) {
     container.select('svg')
         .attr('width', width + margin.left + margin.right)              // reset whole svg width with new width
     if (oldWidth !== width) {                                           // only if width changed:
-      menuIcons.attr('transform', 'translate(' + (width - menuIconWidth) + ', 0)')
+      // get current menu coordinates and move proportionally
+      var coordinates = d3.transform(menuIcons.attr('transform')).translate
+      menuIcons.attr('transform', 'translate(' + width * (coordinates[0]/oldWidth) +
+            ',' + coordinates[1] + ')')
+
       x.rangeRoundBands([yAxisWidth, width])                            // reset x scale range
       redraw()                                                          // redraw
     }
