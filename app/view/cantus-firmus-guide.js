@@ -64,7 +64,7 @@ var cantusFirmusGuide = function (container) {
       choicePadding        = 0.16,        // reserve 16% of vertical space for padding on choices
 
       // note boxes
-      unfinishedNoteColor  = '#c6dbef',   // light blue
+      unfinishedNoteColor  = '#3498db',   // light blue
       finishedNoteColor    = '#2ca02c',   // green
       choiceOpacity        = 0.25,        // opacity of choice notes
       constructionOpacity  = 0.5,         // opacity of construction notes
@@ -74,8 +74,8 @@ var cantusFirmusGuide = function (container) {
 
       // note text on y axis
       yAxisWidth           = 44,          // space reserved for note names on y axis
-      fontSize             = '1.3em',     // default font size
-      highlightedFontSize  = '2.2em',     // font size when note is selected
+      fontSize             = '1em',     // default font size
+      highlightedFontSize  = '2em',     // font size when note is selected
 
       // animation speeds
       animationTime        = 300,         // animation time to re-scale
@@ -710,6 +710,12 @@ var cantusFirmusGuide = function (container) {
     appendChoices()
   }
   redraw() // initialize
+  // highlight first note
+  svg.select('.y-axis-text').selectAll('text')
+      .filter(function (d) { return d.val === cf.construction()[0] })
+      .attr('font-weight', 'bold')
+
+
 }
 
 d3.selectAll('counterpoint')
