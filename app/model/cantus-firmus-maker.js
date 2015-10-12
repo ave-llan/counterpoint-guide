@@ -37,6 +37,10 @@ var CantusFirmusMaker = function (firstNote, mode, maxRange, maxLength) {
     return maxLength
   }
 
+  this.mode = function () {
+    return mode
+  }
+
   this.construction = function () {
     return cf.cf()
   }
