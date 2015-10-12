@@ -620,6 +620,17 @@ var cantusFirmusGuide = function (container) {
         })
   }
 
+  var tonicBar = svg.append('text')
+      .text('|')
+      .attr('font-size', '2em')
+      .attr('text-anchor', 'start')
+      .attr('font-weight', 'bold')
+      .attr('dominant-baseline', 'central')
+      .attr('x', -10)
+      .attr('color', 'steelblue')
+      .attr('fill', function () { return cf.isValid() ? finishedNoteColor : unfinishedNoteColor })
+      .attr('y', function (d) { return y(cf.construction()[0]) + y.rangeBand() / 2 })
+
   function redraw () {
     animatingAll = true
     // unselect all notes to prevent any touch-end or mouse-off events
@@ -707,15 +718,15 @@ var cantusFirmusGuide = function (container) {
         .duration(choiceAnimationTime)
         .attr('x', 0)                 // move on stage
 
+    // update position of tonic bar
+    tonicBar.transition()
+        .duration(animationTime)
+        .attr('y', function (d) { return y(cf.construction()[0]) + y.rangeBand() / 2 })
+        .attr('fill', function () { return cf.isValid() ? finishedNoteColor : unfinishedNoteColor })
+
     appendChoices()
   }
   redraw() // initialize
-  // highlight first note
-  svg.select('.y-axis-text').selectAll('text')
-      .filter(function (d) { return d.val === cf.construction()[0] })
-      .attr('font-weight', 'bold')
-
-
 }
 
 d3.selectAll('counterpoint')
