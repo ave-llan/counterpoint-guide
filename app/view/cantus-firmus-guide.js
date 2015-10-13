@@ -73,13 +73,15 @@ var cantusFirmusGuide = function (container) {
       sizeBeforeSelect     = 1.6,         // increase size to 160%
 
       // note text on y axis
-      yAxisWidth           = 44,          // space reserved for note names on y axis
+      yAxisWidth           = 40,          // space reserved for note names on y axis
       fontSize             = '1em',       // default font size
       highlightedFontSize  = '2em',       // font size when note is selected
 
       // bar to the left of tonic used to change starting pitch
       tonicBarWidth        = 5,           // width of tonic bar
       tonicBarHeight       = 30,          // height of tonic bar
+      tonicBarRightPadding = 8,           // padding on right side of tonic bar
+      tonicBarSectionWidth = tonicBarWidth + tonicBarRightPadding,
 
       // animation speeds
       animationTime        = 300,         // animation time to re-scale
@@ -259,7 +261,7 @@ var cantusFirmusGuide = function (container) {
   // declare scales and line
   var x                = d3.scale.ordinal()
                              .domain(d3.range(d3.max([8, cf.length() + 1])))
-                             .rangeRoundBands([yAxisWidth, width])
+                             .rangeRoundBands([tonicBarSectionWidth + yAxisWidth, width])
   var y                = d3.scale.ordinal()
                              .domain(cf.domain())
                              .rangeRoundBands([height, 0])
@@ -285,7 +287,7 @@ var cantusFirmusGuide = function (container) {
       menuIcons.attr('transform', 'translate(' + width * (coordinates[0]/oldWidth) +
             ',' + coordinates[1] + ')')
 
-      x.rangeRoundBands([yAxisWidth, width])                            // reset x scale range
+      x.rangeRoundBands([tonicBarSectionWidth + yAxisWidth, width])     // reset x scale range
       redraw()                                                          // redraw
     }
   })
@@ -625,7 +627,7 @@ var cantusFirmusGuide = function (container) {
   }
 
   var tonicBar = svg.append('rect')
-      .attr('x', -10)
+      .attr('x', 0)
       .attr('y', y(cf.construction()[0]) + (y.rangeBand()/2 - tonicBarHeight/2))
       .attr('width', 5)
       .attr('height', tonicBarHeight)
@@ -708,7 +710,7 @@ var cantusFirmusGuide = function (container) {
     // update remaining
     yText.transition()
         .duration(animationTime)
-        .attr('x', 0)
+        .attr('x', tonicBarSectionWidth)
         .attr('y', function (d) { return y(d.val) + y.rangeBand() / 2 })
         .attr('font-size', fontSize)
     yText.enter()
@@ -719,7 +721,7 @@ var cantusFirmusGuide = function (container) {
           return animationTime + (Pitch(d.val).intervalSize(cf.lastNote()) * choiceAnimationTime / 6)
         })
         .duration(choiceAnimationTime)
-        .attr('x', 0)                 // move on stage
+        .attr('x', tonicBarSectionWidth)     // move on stage
 
     // update position of tonic bar
     tonicBar.transition()
