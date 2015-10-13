@@ -45,7 +45,7 @@ var cantusFirmusGuide = function (container) {
                 .attr('width', '100%')
                 .style('-webkit-tap-highlight-color', 'transparent')   // hide webkit taps
 
-  var margin               = {top: 20, right: 20, bottom: 20, left: 10},
+  var margin               = {top: 5, right: 20, bottom: 20, left: 10},
 
       iconSize             = 40,          // width of each icon
       iconPadding          = 5,           // padding between each icon
