@@ -74,15 +74,19 @@ var cantusFirmusGuide = function (container) {
 
       // note text on y axis
       yAxisWidth           = 44,          // space reserved for note names on y axis
-      fontSize             = '1em',     // default font size
-      highlightedFontSize  = '2em',     // font size when note is selected
+      fontSize             = '1em',       // default font size
+      highlightedFontSize  = '2em',       // font size when note is selected
+
+      // bar to the left of tonic used to change starting pitch
+      tonicBarWidth        = 5,           // width of tonic bar
+      tonicBarHeight       = 30,          // height of tonic bar
 
       // animation speeds
       animationTime        = 300,         // animation time to re-scale
       choiceAnimationTime  = 500,         // animation time for choices to appear
 
       // playback times
-      timeBetweenNotes     = 500         // ms between notes on playback
+      timeBetweenNotes     = 500          // ms between notes on playback
 
   var touchDetected        = false,       // has the SVG received a touchevent? if so, disable mousover
       soundOn              = false,       // is the sound on?
@@ -620,16 +624,15 @@ var cantusFirmusGuide = function (container) {
         })
   }
 
-  var tonicBar = svg.append('text')
-      .text('|')
-      .attr('font-size', '2em')
-      .attr('text-anchor', 'start')
-      .attr('font-weight', 'bold')
-      .attr('dominant-baseline', 'central')
+  var tonicBar = svg.append('rect')
       .attr('x', -10)
-      .attr('color', 'steelblue')
+      .attr('y', y(cf.construction()[0]) + (y.rangeBand()/2 - tonicBarHeight/2))
+      .attr('width', 5)
+      .attr('height', tonicBarHeight)
       .attr('fill', function () { return cf.isValid() ? finishedNoteColor : unfinishedNoteColor })
-      .attr('y', function (d) { return y(cf.construction()[0]) + y.rangeBand() / 2 })
+      .on('click', function () {
+        console.log('clicked!')
+      })
 
   function redraw () {
     animatingAll = true
@@ -721,7 +724,7 @@ var cantusFirmusGuide = function (container) {
     // update position of tonic bar
     tonicBar.transition()
         .duration(animationTime)
-        .attr('y', function (d) { return y(cf.construction()[0]) + y.rangeBand() / 2 })
+        .attr('y', y(cf.construction()[0]) + (y.rangeBand()/2 - tonicBarHeight/2))
         .attr('fill', function () { return cf.isValid() ? finishedNoteColor : unfinishedNoteColor })
 
     appendChoices()
