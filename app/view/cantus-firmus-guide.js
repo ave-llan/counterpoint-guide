@@ -264,7 +264,7 @@ var cantusFirmusGuide = function (container) {
                              .rangeRoundBands([tonicBarSectionWidth + yAxisWidth, width])
   var y                = d3.scale.ordinal()
                              .domain(cf.domain())
-                             .rangeRoundBands([height, 0])
+                             .rangeRoundBands([height, iconSize])
   var constructionLine = d3.svg.line()
                              .x(function (d, i) { return x(i) + x.rangeBand() / 2})
                              .y(function (d) { return y(d) + y.rangeBand() / 2 })
