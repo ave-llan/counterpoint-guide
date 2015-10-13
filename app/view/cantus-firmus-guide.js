@@ -2,7 +2,9 @@ var d3 = require('d3')
 var CFguide = require('../model/cantus-firmus-maker.js')
 var Pitch = require('nmusic').Pitch
 var sortPitches = require('nmusic').sortPitches
+var parsePitch = require('nmusic').parsePitch
 var Tone = require('tone')
+
 
 var synth
 
@@ -39,6 +41,11 @@ var cantusFirmusGuide = function (container) {
                        container.attr('mode')       || 'major',
                        container.attr('max-range')  || 10,
                        container.attr('max-length') || 16)
+
+  // create a new container div set to relative position
+  container = container.append('div')
+      .attr('id', 'counterpoint-container')
+      .style('position', 'relative')
 
   // set intial width to 100% to get actual width
   var svg = container.append('svg')
@@ -83,6 +90,9 @@ var cantusFirmusGuide = function (container) {
       tonicBarRightPadding = 8,           // padding on right side of tonic bar
       tonicBarSectionWidth = tonicBarWidth + tonicBarRightPadding,
 
+      // tonic input box
+      tonicInputLeftPadding = 2,      // padding inside input box
+
       // animation speeds
       animationTime        = 300,         // animation time to re-scale
       choiceAnimationTime  = 500,         // animation time for choices to appear
@@ -93,7 +103,26 @@ var cantusFirmusGuide = function (container) {
   var touchDetected        = false,       // has the SVG received a touchevent? if so, disable mousover
       soundOn              = false,       // is the sound on?
       beingPlayedBack      = false,       // is playback currently happening?
-      animatingAll         = false        // is everything being redrawn?
+      animatingAll         = false,       // is everything being redrawn?
+      finishedComposing    = false        // has the user accepted a complete cantus firmus?
+
+  var tonicInput = container.append('div')
+      .attr('background-color', 'white')
+      .style('position', 'absolute')
+      .style('left', margin.left + tonicBarSectionWidth - tonicInputLeftPadding + 'px')
+      .style('display', 'none')
+      .on('submit', function () {
+        d3.event.preventDefault()
+        textInput.node().blur()
+      })
+  var textInput = tonicInput.append('form').append('input')
+      .attr('type', 'text')
+      .attr('name', 'tonic')
+      .style('padding', '0px 0px 0px ' + tonicInputLeftPadding + 'px')
+      .style('border', '0')
+      .style('font-size', fontSize)
+      .attr('placeholder', cf.construction()[0])
+      .property('value', Pitch(cf.construction()[0]).pitchClass())
 
   // set svg dimensions
   svg.attr('width', totalWidth)
@@ -117,6 +146,7 @@ var cantusFirmusGuide = function (container) {
       .attr('class', 'construction-notes')
   svg.append('g')
       .attr('class', 'y-axis-text')
+      .attr('opacity', 1)
   svg.append('g')
       .attr('class', 'choice-notes')
 
@@ -629,12 +659,43 @@ var cantusFirmusGuide = function (container) {
   var tonicBar = svg.append('rect')
       .attr('x', 0)
       .attr('y', y(cf.construction()[0]) + (y.rangeBand()/2 - tonicBarHeight/2))
-      .attr('width', 5)
+      .attr('width', tonicBarWidth)
+      .attr('opacity', 1)
       .attr('height', tonicBarHeight)
       .attr('fill', function () { return cf.isValid() ? finishedNoteColor : unfinishedNoteColor })
       .on('click', function () {
-        console.log('clicked!')
+        svg.select('.y-axis-text')
+            .transition()
+            .duration(animationTime)
+            .attr('opacity', 0)
+
+        tonicInput
+            .style('top', margin.top + y(cf.construction()[0]) + 'px')
+            .style('display', null)
+        var input = tonicInput.select('input')
+            .style('height', y.rangeBand() + 'px')        // -2 for bottom-border-width of 2
+            .style('width', yAxisWidth + 'px')
+            .on('blur', function () {
+              tonicInput.style('display', 'none')
+              svg.select('.y-axis-text')
+                  .transition()
+                  .duration(animationTime)
+                  .attr('opacity', 1)
+              var input = tonicInput.select('input')
+              var newNote = input.property('value')
+              if (newNote !== cf.construction()[0]) {
+                if (parsePitch(newNote)) {
+                  console.log('you entered a valid new note!')
+                } else {
+                  console.log('not a valid note name')
+                  input.property('value', Pitch(cf.construction()[0]).pitchClass())  // reset value
+                }
+              }
+            })
+        input.node().focus()
       })
+
+
 
   function redraw () {
     animatingAll = true
