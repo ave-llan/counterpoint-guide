@@ -4,7 +4,7 @@
   "description": "Interactive visual interface for writing counterpoint",
   "main": "index.js",
   "scripts": {
-    "test": "standard \"app/**/*.js\" && tape \"test/**/*.test.js\" | faucet",
+    "test": "standard \"app/model/*.js\" && tape \"test/**/*.test.js\" | faucet",
     "build": "browserify entry.js -o bundle.js",
     "watch": "watchify entry.js -o bundle.js --debug --verbose",
     "view": "reload -b",
