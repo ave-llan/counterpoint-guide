@@ -675,6 +675,7 @@ var cantusFirmusGuide = function (container) {
         var input = tonicInput.select('input')
             .style('height', y.rangeBand() + 'px')        // -2 for bottom-border-width of 2
             .style('width', yAxisWidth + 'px')
+            .property('value', Pitch(cf.construction()[0]).pitchClass())  // reset value
             .on('blur', function () {
               tonicInput.style('display', 'none')
               svg.select('.y-axis-text')
@@ -683,12 +684,14 @@ var cantusFirmusGuide = function (container) {
                   .attr('opacity', 1)
               var input = tonicInput.select('input')
               var newNote = input.property('value')
-              if (newNote !== cf.construction()[0]) {
+              if (newNote !== Pitch(cf.construction()[0]).pitchClass()) {
                 if (parsePitch(newNote)) {
                   console.log('you entered a valid new note!')
+                  var transposeInterval = Pitch(newNote).interval(cf.construction()[0])
+                  cf = cf.transpose(transposeInterval)
+                  redraw()
                 } else {
                   console.log('not a valid note name')
-                  input.property('value', Pitch(cf.construction()[0]).pitchClass())  // reset value
                 }
               }
             })
