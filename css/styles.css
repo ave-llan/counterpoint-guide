@@ -11,3 +11,11 @@
   user-select: none;
 }
 
+input {
+  font-family: sans-serif;
+}
+
+p {
+  font-family: sans-serif;
+  font-size: 1em;
+}
