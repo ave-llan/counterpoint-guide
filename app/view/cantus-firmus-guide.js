@@ -663,6 +663,11 @@ var cantusFirmusGuide = function (container) {
       .attr('height', tonicBarHeight)
       .attr('fill', function () { return cf.isValid() ? finishedNoteColor : unfinishedNoteColor })
       .on('click', function () {
+        if (beingPlayedBack) {      // if needed, hault playback
+          beingPlayedBack = false
+          updatePlaybackIcon()
+        }
+
         svg.select('.y-axis-text').selectAll('text')
             .transition()
             .duration(animationTime)
@@ -687,7 +692,7 @@ var cantusFirmusGuide = function (container) {
                 console.log('transposing by:', transposeInterval)
                 var sign = isHigher(newNote, cf.construction()[0]) ? '' : '-'
                 cf = cf.transpose(sign + transposeInterval)
-                y.domain(cf.domain()) //update domain with new notes
+                y.domain(cf.domain())       //update domain with new notes
                 svg.select('.y-axis-text').selectAll('text')
                     .datum(function (d) {
                       return {val: plusInterval(d.val, sign + transposeInterval)}
@@ -799,6 +804,7 @@ var cantusFirmusGuide = function (container) {
         .attr('x', tonicBarSectionWidth)
         .attr('y', function (d) { return y(d.val) + y.rangeBand() / 2 })
         .attr('font-size', fontSize)
+        .attr('opacity', 1)
     yText.enter()
         .append('text')
         .call(enteringYtext)
