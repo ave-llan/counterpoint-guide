@@ -1,7 +1,7 @@
 var CantusFirmus = require('counterpoint').CantusFirmus
 var Key = require('nmusic').Key
-var Pitch = require('nmusic').Pitch
 var sortPitches = require('nmusic').sortPitches
+var plusInterval = require('nmusic').plusInterval
 var deepcopy = require('deepcopy')
 
 /**
@@ -101,6 +101,17 @@ var CantusFirmusMaker = function (firstNote, mode, maxRange, maxLength) {
    */
   this.choicePaths = function (nDeep) {
     return cf.choices(nDeep).map(pathsFromNode).reduce(mergeArrays)
+  }
+
+  /**
+   *
+   * @returns {CantusFirmusMaker} - a new cantus firmus maker transposed by given interval
+   */
+  this.transpose = function (interval) {
+    var transposedConstruction = this.construction().map(plusInterval(interval))
+    var newGuide = new CantusFirmusMaker(transposedConstruction.shift(), mode, maxRange, maxLength)
+    transposedConstruction.forEach(newGuide.addNote)
+    return newGuide
   }
 }
 
