@@ -663,7 +663,7 @@ var cantusFirmusGuide = function (container) {
       .attr('height', tonicBarHeight)
       .attr('fill', function () { return cf.isValid() ? finishedNoteColor : unfinishedNoteColor })
       .on('click', function () {
-        svg.select('.y-axis-text')
+        svg.select('.y-axis-text').selectAll('text')
             .transition()
             .duration(animationTime)
             .attr('opacity', 0.2)
@@ -678,36 +678,43 @@ var cantusFirmusGuide = function (container) {
             .property('value', Pitch(cf.construction()[0]).pitchClass())  // reset value
             .on('blur', function () {
               tonicInput.style('display', 'none')
-              svg.select('.y-axis-text')
-                  .transition()
-                  .duration(animationTime)
-                  .attr('opacity', 1)
               var input = tonicInput.select('input')
               var newNote = input.property('value')
-              if (newNote !== Pitch(cf.construction()[0]).pitchClass()) {
-                var parsed = parsePitch(newNote)
-                if (parsed && parsed.octave > 1 && parsed.octave < 9) {
-                  var transposeInterval = Pitch(newNote).interval(cf.construction()[0])
-                  console.log('transposing by:', transposeInterval)
-                  var sign = isHigher(newNote, cf.construction()[0]) ? '' : '-'
-                  cf = cf.transpose(sign + transposeInterval)
-                  y.domain(cf.domain()) //update domain with new notes
-                  svg.select('.y-axis-text').selectAll('text')
-                      .datum(function (d) {
-                        return {val: plusInterval(d.val, sign + transposeInterval)}
-                      })
-                      .text(function (d) { return Pitch(d.val).pitchClass() })
-                  svg.select('.choice-notes').selectAll('rect')
-                      .datum(function (d) {
-                        return {val: plusInterval(d.val, sign + transposeInterval)}
-                      })
-                  svg.select('.construction-notes').selectAll('rect')
-                      .datum(function (d) {
-                        return plusInterval(d, sign + transposeInterval)
-                      })
-                } else {
-                  console.log('not a valid note name')
-                }
+              var parsed = parsePitch(newNote)
+              if (newNote !== Pitch(cf.construction()[0]).pitchClass() &&
+                parsed && parsed.octave > 1 && parsed.octave < 9) {
+                var transposeInterval = Pitch(newNote).interval(cf.construction()[0])
+                console.log('transposing by:', transposeInterval)
+                var sign = isHigher(newNote, cf.construction()[0]) ? '' : '-'
+                cf = cf.transpose(sign + transposeInterval)
+                y.domain(cf.domain()) //update domain with new notes
+                svg.select('.y-axis-text').selectAll('text')
+                    .datum(function (d) {
+                      return {val: plusInterval(d.val, sign + transposeInterval)}
+                    })
+                    .attr('opacity', function (d) { return d.val === cf.construction()[0] ? 1 : 0 })
+                    .text(function (d) { return Pitch(d.val).pitchClass() })
+                    .transition()
+                    .duration(animationTime*4)
+                    .delay(function (d) {         // match incoming choice notes on this note
+                      return Pitch(d.val).intervalSize(cf.construction()[0]) * choiceAnimationTime / 6
+                    })
+                    .attr('opacity', 1)
+
+
+                svg.select('.choice-notes').selectAll('rect')
+                    .datum(function (d) {
+                      return {val: plusInterval(d.val, sign + transposeInterval)}
+                    })
+                svg.select('.construction-notes').selectAll('rect')
+                    .datum(function (d) {
+                      return plusInterval(d, sign + transposeInterval)
+                    })
+              } else {
+                svg.select('.y-axis-text').selectAll('text')
+                    .transition()
+                    .duration(animationTime)
+                    .attr('opacity', 1)
               }
             })
         input.node().focus()
