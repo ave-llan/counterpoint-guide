@@ -4,6 +4,7 @@ var Pitch = require('nmusic').Pitch
 var sortPitches = require('nmusic').sortPitches
 var parsePitch = require('nmusic').parsePitch
 var isHigher = require('nmusic').isHigher
+var plusInterval = require('nmusic').plusInterval
 var Tone = require('tone')
 
 var synth
@@ -684,13 +685,26 @@ var cantusFirmusGuide = function (container) {
               var input = tonicInput.select('input')
               var newNote = input.property('value')
               if (newNote !== Pitch(cf.construction()[0]).pitchClass()) {
-                if (parsePitch(newNote)) {
+                var parsed = parsePitch(newNote)
+                if (parsed && parsed.octave > 1 && parsed.octave < 9) {
                   var transposeInterval = Pitch(newNote).interval(cf.construction()[0])
                   console.log('transposing by:', transposeInterval)
                   var sign = isHigher(newNote, cf.construction()[0]) ? '' : '-'
                   cf = cf.transpose(sign + transposeInterval)
                   y.domain(cf.domain()) //update domain with new notes
-                  redraw()
+                  svg.select('.y-axis-text').selectAll('text')
+                      .datum(function (d) {
+                        return {val: plusInterval(d.val, sign + transposeInterval)}
+                      })
+                      .text(function (d) { return Pitch(d.val).pitchClass() })
+                  svg.select('.choice-notes').selectAll('rect')
+                      .datum(function (d) {
+                        return {val: plusInterval(d.val, sign + transposeInterval)}
+                      })
+                  svg.select('.construction-notes').selectAll('rect')
+                      .datum(function (d) {
+                        return plusInterval(d, sign + transposeInterval)
+                      })
                 } else {
                   console.log('not a valid note name')
                 }
