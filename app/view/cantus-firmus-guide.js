@@ -827,6 +827,13 @@ var cantusFirmusGuide = function (container) {
     appendChoices()
   }
   redraw() // initialize
+  /*
+  svg.select('.y-axis-text').selectAll('text')
+      .filter(function (d) { return d.val === cf.firstNote() })
+      .attr('text-decoration', 'underline')
+      .attr('font-weight', 'bold')
+      .attr('fill', 'steelblue')
+  */
 }
 
 d3.selectAll('counterpoint')
