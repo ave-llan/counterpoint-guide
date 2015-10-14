@@ -3,8 +3,8 @@ var CFguide = require('../model/cantus-firmus-maker.js')
 var Pitch = require('nmusic').Pitch
 var sortPitches = require('nmusic').sortPitches
 var parsePitch = require('nmusic').parsePitch
+var isHigher = requrie('nmusic').isHigher
 var Tone = require('tone')
-
 
 var synth
 
@@ -121,8 +121,6 @@ var cantusFirmusGuide = function (container) {
       .style('padding', '0px 0px 0px ' + tonicInputLeftPadding + 'px')
       .style('border', '0')
       .style('font-size', fontSize)
-      .attr('placeholder', cf.construction()[0])
-      .property('value', Pitch(cf.construction()[0]).pitchClass())
 
   // set svg dimensions
   svg.attr('width', totalWidth)
@@ -667,7 +665,7 @@ var cantusFirmusGuide = function (container) {
         svg.select('.y-axis-text')
             .transition()
             .duration(animationTime)
-            .attr('opacity', 0)
+            .attr('opacity', 0.2)
 
         tonicInput
             .style('top', margin.top + y(cf.construction()[0]) + 'px')
@@ -675,6 +673,7 @@ var cantusFirmusGuide = function (container) {
         var input = tonicInput.select('input')
             .style('height', y.rangeBand() + 'px')        // -2 for bottom-border-width of 2
             .style('width', yAxisWidth + 'px')
+            .attr('placeholder', Pitch(cf.construction()[0]).pitchClass())
             .property('value', Pitch(cf.construction()[0]).pitchClass())  // reset value
             .on('blur', function () {
               tonicInput.style('display', 'none')
@@ -688,7 +687,9 @@ var cantusFirmusGuide = function (container) {
                 if (parsePitch(newNote)) {
                   console.log('you entered a valid new note!')
                   var transposeInterval = Pitch(newNote).interval(cf.construction()[0])
-                  cf = cf.transpose(transposeInterval)
+                  console.log('transposing by:', transposeInterval)
+                  var sign = isHigher(newNote, cf.construction()[0]) ? '' : '-'
+                  cf = cf.transpose(sign + transposeInterval)
                   redraw()
                 } else {
                   console.log('not a valid note name')
