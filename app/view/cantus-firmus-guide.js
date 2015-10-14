@@ -5,6 +5,7 @@ var sortPitches = require('nmusic').sortPitches
 var parsePitch = require('nmusic').parsePitch
 var isHigher = require('nmusic').isHigher
 var plusInterval = require('nmusic').plusInterval
+var toMidi = require('nmusic').toMidi
 var Tone = require('tone')
 
 var synth
@@ -26,7 +27,8 @@ function createSynth() {
 
 function playNote(note) {
   if (!synth) createSynth()
-  synth.triggerAttackRelease(note,        // pitch
+  // route pitch through MIDI number because Tone does not understand double flats/sharps
+  synth.triggerAttackRelease(synth.midiToNote(toMidi(note) + 12),        // 60 is C4 nmusic, C3 in Tone
                               0.3,        // duration in seconds
                               undefined,  // delay to attack in seconds (defaults to none)
                               0.8)        // velocity
