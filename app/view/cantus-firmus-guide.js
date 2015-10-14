@@ -3,7 +3,7 @@ var CFguide = require('../model/cantus-firmus-maker.js')
 var Pitch = require('nmusic').Pitch
 var sortPitches = require('nmusic').sortPitches
 var parsePitch = require('nmusic').parsePitch
-var isHigher = requrie('nmusic').isHigher
+var isHigher = require('nmusic').isHigher
 var Tone = require('tone')
 
 var synth
@@ -685,11 +685,11 @@ var cantusFirmusGuide = function (container) {
               var newNote = input.property('value')
               if (newNote !== Pitch(cf.construction()[0]).pitchClass()) {
                 if (parsePitch(newNote)) {
-                  console.log('you entered a valid new note!')
                   var transposeInterval = Pitch(newNote).interval(cf.construction()[0])
                   console.log('transposing by:', transposeInterval)
                   var sign = isHigher(newNote, cf.construction()[0]) ? '' : '-'
                   cf = cf.transpose(sign + transposeInterval)
+                  y.domain(cf.domain()) //update domain with new notes
                   redraw()
                 } else {
                   console.log('not a valid note name')
