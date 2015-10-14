@@ -53,6 +53,10 @@ var CantusFirmusMaker = function (firstNote, mode, maxRange, maxLength) {
     return this.construction()[this.length() - 1]
   }
 
+  this.firstNote = function () {
+    return this.construction()[0]
+  }
+
   this.choices = function () {
     return cf.choices()
   }

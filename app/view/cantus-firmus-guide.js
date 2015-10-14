@@ -657,7 +657,7 @@ var cantusFirmusGuide = function (container) {
 
   var tonicBar = svg.append('rect')
       .attr('x', 0)
-      .attr('y', y(cf.construction()[0]) + (y.rangeBand()/2 - tonicBarHeight/2))
+      .attr('y', y(cf.firstNote()) + (y.rangeBand()/2 - tonicBarHeight/2))
       .attr('width', tonicBarWidth)
       .attr('opacity', 1)
       .attr('height', tonicBarHeight)
@@ -671,38 +671,39 @@ var cantusFirmusGuide = function (container) {
         svg.select('.y-axis-text').selectAll('text')
             .transition()
             .duration(animationTime)
+            .attr('font-size', fontSize)   // reset fontSize in case cf was being played back
             .attr('opacity', 0.2)
 
         tonicInput
-            .style('top', margin.top + y(cf.construction()[0]) + 'px')
+            .style('top', margin.top + y(cf.firstNote()) + 'px')
             .style('display', null)
         var input = tonicInput.select('input')
             .style('height', y.rangeBand() + 'px')        // -2 for bottom-border-width of 2
             .style('width', yAxisWidth + 'px')
-            .attr('placeholder', Pitch(cf.construction()[0]).pitchClass())
-            .property('value', Pitch(cf.construction()[0]).pitchClass())  // reset value
+            .attr('placeholder', Pitch(cf.firstNote()).pitchClass())
+            .property('value', Pitch(cf.firstNote()).pitchClass())  // reset value
             .on('blur', function () {
               tonicInput.style('display', 'none')
               var input = tonicInput.select('input')
               var newNote = input.property('value')
               var parsed = parsePitch(newNote)
-              if (newNote !== Pitch(cf.construction()[0]).pitchClass() &&
+              if (newNote !== Pitch(cf.firstNote()).pitchClass() &&
                 parsed && parsed.octave > 1 && parsed.octave < 9) {
-                var transposeInterval = Pitch(newNote).interval(cf.construction()[0])
+                var transposeInterval = Pitch(newNote).interval(cf.firstNote())
                 console.log('transposing by:', transposeInterval)
-                var sign = isHigher(newNote, cf.construction()[0]) ? '' : '-'
+                var sign = isHigher(newNote, cf.firstNote()) ? '' : '-'
                 cf = cf.transpose(sign + transposeInterval)
                 y.domain(cf.domain())       //update domain with new notes
                 svg.select('.y-axis-text').selectAll('text')
                     .datum(function (d) {
                       return {val: plusInterval(d.val, sign + transposeInterval)}
                     })
-                    .attr('opacity', function (d) { return d.val === cf.construction()[0] ? 1 : 0 })
+                    .attr('opacity', function (d) { return d.val === cf.firstNote() ? 1 : 0 })
                     .text(function (d) { return Pitch(d.val).pitchClass() })
                     .transition()
                     .duration(animationTime*4)
                     .delay(function (d) {         // match incoming choice notes on this note
-                      return Pitch(d.val).intervalSize(cf.construction()[0]) * choiceAnimationTime / 6
+                      return Pitch(d.val).intervalSize(cf.firstNote()) * choiceAnimationTime / 6
                     })
                     .attr('opacity', 1)
 
@@ -818,7 +819,7 @@ var cantusFirmusGuide = function (container) {
     // update position of tonic bar
     tonicBar.transition()
         .duration(animationTime)
-        .attr('y', y(cf.construction()[0]) + (y.rangeBand()/2 - tonicBarHeight/2))
+        .attr('y', y(cf.firstNote()) + (y.rangeBand()/2 - tonicBarHeight/2))
         .attr('fill', function () { return cf.isValid() ? finishedNoteColor : unfinishedNoteColor })
 
     appendChoices()
