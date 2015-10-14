@@ -108,7 +108,9 @@ var CantusFirmusMaker = function (firstNote, mode, maxRange, maxLength) {
    * @returns {CantusFirmusMaker} - a new cantus firmus maker transposed by given interval
    */
   this.transpose = function (interval) {
-    var transposedConstruction = this.construction().map(plusInterval(interval))
+    var transposedConstruction = this.construction().map(function (oldNote) {
+      return plusInterval(oldNote, interval)
+    })
     var newGuide = new CantusFirmusMaker(transposedConstruction.shift(), mode, maxRange, maxLength)
     transposedConstruction.forEach(newGuide.addNote)
     return newGuide
