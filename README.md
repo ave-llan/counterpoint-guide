@@ -10,5 +10,4 @@ Then add the custom counterpoint element wherever you would like a guide:
 ```html
 <counterpoint></counterpoint>
 ```
-This will create a default guide in C major.
-
+This will create a default guide in C major.  Every guide is independent and you can create as many as you like on a single page.
