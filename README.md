@@ -7,7 +7,7 @@ Add [counterpoint-guide.min.js](counterpoint-guide.min.js) to your project at th
 ```
 
 Then add the custom counterpoint element wherever you would like a guide:
-```
+```html
 <counterpoint></counterpoint>
 ```
 This will create a default guide in C major.
