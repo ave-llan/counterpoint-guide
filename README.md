@@ -6,7 +6,7 @@ Add [counterpoint-guide.min.js](counterpoint-guide.min.js) to your project at th
 <script type="text/javascript" src="counterpoint-guide.min.js"></script>
 ```
 
-Then, wherever you want a guide, simple add the custom counterpoint element:
+Then add the custom counterpoint element wherever you would like a guide:
 ```
 <counterpoint></counterpoint>
 ```
