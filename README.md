@@ -16,7 +16,13 @@ This will create a default guide in C major.  Every guide is independent and you
 You can customize each `<counterpoint>` element with a number of attritbutes.
 
 ```
-<counterpoint height="300" first-note="Eb5" mode="major" max-range="10" notes="Eb5 Bb5 Ab5 G5 C6 Bb5"></counterpoint>
+<counterpoint
+      height="300"
+  first-note="Eb5"
+        mode="major"
+   max-range="10"
+       notes="Eb5 Bb5 Ab5 G5 C6 Bb5">
+</counterpoint>
 ```
 
 Attribute    |  Default |  Description
