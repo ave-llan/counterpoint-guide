@@ -11,3 +11,17 @@ Then add the custom counterpoint element wherever you would like a guide:
 <counterpoint></counterpoint>
 ```
 This will create a default guide in C major.  Every guide is independent and you can create as many as you like on a single page.
+
+## Customization
+You can customize each `<counterpoint>` element with a number of attritbutes.
+
+```
+<counterpoint height="300" first-note='Eb5' mode="major" max-range='10'></counterpoint>
+```
+
+Attribute    |  Default |  Description
+---------:   | :------- | :--------------------------------------------
+`height`     | 450      | the max-height in device pixels of the guide
+`first-note` | C4       | the first note of the guide, given in [scientific pitch notation](https://en.wikipedia.org/wiki/Scientific_pitch_notation)
+`mode`       | major    | a valid [mode](https://en.wikipedia.org/wiki/Mode_(music)#Modern) like 'minor' or 'dorian''
+`max-range`  | 10       | restricts composition to this interval size
