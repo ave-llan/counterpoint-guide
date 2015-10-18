@@ -15,7 +15,7 @@ This will create a default guide in C major.  Every guide is independent and you
 ## Customization
 You can customize each `<counterpoint>` element with a number of attritbutes.
 
-```
+```html
 <counterpoint
       height="300"
   first-note="Eb5"
