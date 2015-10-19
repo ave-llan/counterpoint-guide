@@ -125,7 +125,6 @@ var cantusFirmusGuide = function (container) {
       .style('position', 'absolute')
       .style('left', margin.left + tonicBarSectionWidth + yAxisWidth + 'px')
       .style('top', margin.top + 'px')
-      .style('width', width - (tonicBarSectionWidth + yAxisWidth) + 'px')
       .style('height', iconSize + 'px')
       .style('display', 'inline-flex')
       .style('align-items', 'center')
@@ -136,7 +135,6 @@ var cantusFirmusGuide = function (container) {
       .style('display', 'inline-flex')
 
   var keyInput = keyModeInput.append('div')
-      .style('height', iconSize * 0.6 + 'px')
       .style('border-bottom', '1px solid rgba(0, 0, 0, 0.12)')
       .style('display', 'flex')
       .style('align-items', 'center')
@@ -163,7 +161,6 @@ var cantusFirmusGuide = function (container) {
       .style('opacity', 0.25)
 
   var modeInput = keyModeInput.append('div')
-      .style('height', iconSize * 0.6 + 'px')
       .style('border-bottom', '1px solid rgba(0, 0, 0, 0.12)')
       .style('display', 'flex')
       .style('align-items', 'center')
