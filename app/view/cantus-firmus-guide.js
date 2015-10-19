@@ -5,6 +5,7 @@ var sortPitches = require('nmusic').sortPitches
 var parsePitch = require('nmusic').parsePitch
 var isHigher = require('nmusic').isHigher
 var plusInterval = require('nmusic').plusInterval
+var Key = require('nmusic').Key
 var toMidi = require('nmusic').toMidi
 var Tone = require('tone')
 
@@ -207,7 +208,51 @@ var cantusFirmusGuide = function (container) {
         .style('background-color', 'transparent')
         .style('opacity', 0.7)
         .on('change', function () {
-          console.log('changed!')
+          if (beingPlayedBack) {      // if needed, hault playback
+            beingPlayedBack = false
+            updatePlaybackIcon()
+          }
+
+          var newMode = modeInput.property('value')
+          var lowNote = cf.domain()[0]
+          var newKey = new Key(cf.firstNote(), newMode)
+          console.log('changing mode to', newMode)
+          cf = cf.changeModeTo(modeInput.property('value'))
+          y.domain(cf.domain())       //update domain with new notes
+          var updatedYtext = svg.select('.y-axis-text').selectAll('text')
+              .data(cf.domain().map(function (sciPitch) {
+                        return { val: sciPitch }
+                      }), function (d) { return d.val })
+          updatedYtext.exit()
+              .attr('opacity', 1)
+              .transition()
+              .duration(animationTime)
+              .delay(function (d) {         // match incoming choice notes on this note
+                return Pitch(d.val).intervalSize(lowNote) * choiceAnimationTime / 6
+              })
+              .attr('opacity', 0)
+              .remove()
+          updatedYtext
+              .enter()
+              .append('text')
+              .call(enteringYtext)
+              .attr('x', tonicBarSectionWidth)
+              .attr('opacity', 0)
+              .transition()
+              .duration(animationTime*2)
+              .delay(function (d) {         // match incoming choice notes on this note
+                return animationTime + Pitch(d.val).intervalSize(lowNote) * choiceAnimationTime / 6
+              })
+              .attr('opacity', 1)
+          svg.select('.choice-notes').selectAll('rect')
+              .datum(function (d) {
+                var p = parsePitch(d.val)
+                return {val: p.letter + newKey.accidentalOn(p.letter) + p.octave}
+              })
+          svg.select('.construction-notes').selectAll('rect')
+              .datum(function (d, i) {
+                return cf.construction()[i]
+              })
         })
   modeInput.selectAll('option')
       .data(modeChoices)
