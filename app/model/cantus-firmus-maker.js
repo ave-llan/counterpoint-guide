@@ -2,6 +2,7 @@ var CantusFirmus = require('counterpoint').CantusFirmus
 var Key = require('nmusic').Key
 var sortPitches = require('nmusic').sortPitches
 var plusInterval = require('nmusic').plusInterval
+var parsePitch = require('nmusic').parsePitch
 var deepcopy = require('deepcopy')
 
 /**
@@ -117,6 +118,26 @@ var CantusFirmusMaker = function (firstNote, mode, maxRange, maxLength) {
     })
     var newGuide = new CantusFirmusMaker(transposedConstruction.shift(), mode, maxRange, maxLength)
     transposedConstruction.forEach(newGuide.addNote)
+    return newGuide
+  }
+
+  /**
+   * tries to change the mode of the cf. If not possible, returns false.
+   * @param {string} newMode - the name of a mode ('major', 'dorian')
+   * @returns {CantusFirmusMaker|false} - a guide in the new mode or false if not possible
+   */
+  this.changeModeTo = function (newMode) {
+    var newKey = new Key(firstNote, newMode)
+    var newConstruction = this.construction().map(function (oldNote) {
+      var p = parsePitch(oldNote)
+      return p.letter + newKey.accidentalOn(p.letter) + p.octave
+    })
+    var newGuide = new CantusFirmusMaker(newConstruction.shift(), newMode, maxRange, maxLength)
+    try {
+      newConstruction.forEach(newGuide.addNote)
+    } catch (e) {
+      return false // newMode did not work
+    }
     return newGuide
   }
 }

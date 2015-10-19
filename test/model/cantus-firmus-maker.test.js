@@ -42,3 +42,17 @@ test('CantusFirmusMaker', function (t) {
 
   t.end()
 })
+
+test('CantusFirmusMaker.changeModeTo', function (t) {
+  var cf = new CantusFirmusMaker()
+  ;'A4 G4 E4 F4 C5'.split(' ').forEach(cf.addNote)
+  t.deepEqual(cf.construction(), 'C4 A4 G4 E4 F4 C5'.split(' '))
+
+  t.deepEqual(cf.changeModeTo('minor').construction(), 'C4 Ab4 G4 Eb4 F4 C5'.split(' '))
+  t.false(cf.changeModeTo('dorian'))
+  t.deepEqual(cf.changeModeTo('phrygian').construction(), 'C4 Ab4 G4 Eb4 F4 C5'.split(' '))
+  t.false(cf.changeModeTo('lydian'))
+  t.deepEqual(cf.changeModeTo('mixolydian').construction(), 'C4 A4 G4 E4 F4 C5'.split(' '))
+  t.deepEqual(cf.changeModeTo('locrian').construction(), 'C4 Ab4 Gb4 Eb4 F4 C5'.split(' '))
+  t.end()
+})
