@@ -12,7 +12,7 @@
   user-select: none;
 }
 
-input {
+input, select {
   font-family: "PT Sans", sans-serif;
 }
 
