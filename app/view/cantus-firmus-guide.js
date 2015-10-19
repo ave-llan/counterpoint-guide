@@ -9,7 +9,15 @@ var toMidi = require('nmusic').toMidi
 var Tone = require('tone')
 
 // notes to be used in drop down note choice menu
-var tonicChoices = 'C C# Db D D# Eb E F F# Gb G G# Ab A A# Bb B'.split(' ').reverse()
+var     letters = 'CBAGFED'.split(''),
+    accidentals = ['#', '', 'b'],
+   tonicChoices = []
+letters.forEach(function (letter) {
+  accidentals.forEach(function(accidental) {
+    tonicChoices.push(letter + accidental)
+  })
+})
+var modeChocies = 'major minor dorian phrygian lydian mixolydian locrian'
 
 var synth
 
