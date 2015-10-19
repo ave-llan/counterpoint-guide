@@ -8,6 +8,9 @@ var plusInterval = require('nmusic').plusInterval
 var toMidi = require('nmusic').toMidi
 var Tone = require('tone')
 
+// notes to be used in drop down note choice menu
+var tonicChoices = 'C C# Db D D# Eb E F F# Gb G G# Ab A A# Bb B'.split(' ').reverse()
+
 var synth
 
 function createSynth() {
@@ -133,11 +136,22 @@ var cantusFirmusGuide = function (container) {
       .style('display', 'inline-flex')
 
   var keyInput = keyModeInput.append('div')
-      .style('height', iconSize * 0.5 + 'px')
+      .style('height', iconSize * 0.6 + 'px')
       .style('border-bottom', '1px solid rgba(0, 0, 0, 0.12)')
       .style('display', 'flex')
       .style('align-items', 'center')
-      .on('click', function () { console.log('key input clicked') })
+      .on('click', function () {
+        console.log('key input clicked')
+        var select = d3.select(this).append('select')
+            .style('position', 'absolute')
+        var currentTonic = Pitch(cf.firstNote()).pitchClass()
+        tonicChoices.forEach(function (choice) {
+          select.append('option')
+              .text(choice)
+              .property('value', choice)
+              .property('selected', function () { return choice === currentTonic })
+        })
+      })
   keyInput.append('p')
       .text(Pitch(cf.firstNote()).pitchClass())
       .style('min-width', '25px')
@@ -149,7 +163,7 @@ var cantusFirmusGuide = function (container) {
       .style('opacity', 0.25)
 
   var modeInput = keyModeInput.append('div')
-      .style('height', iconSize * 0.5 + 'px')
+      .style('height', iconSize * 0.6 + 'px')
       .style('border-bottom', '1px solid rgba(0, 0, 0, 0.12)')
       .style('display', 'flex')
       .style('align-items', 'center')
