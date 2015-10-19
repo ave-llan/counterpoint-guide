@@ -9,7 +9,7 @@ var toMidi = require('nmusic').toMidi
 var Tone = require('tone')
 
 // notes to be used in drop down note choice menu
-var     letters = 'CBAGFED'.split(''),
+var     letters = 'BAGFEDC'.split(''),
     accidentals = ['#', '', 'b'],
    tonicChoices = []
 letters.forEach(function (letter) {
@@ -20,7 +20,7 @@ letters.forEach(function (letter) {
 // modes to be used in drop down choice menu
 var modeChoices = 'major minor dorian phrygian lydian mixolydian locrian'.split(' ')
 
-var synfth
+var synth // global synth in case there are multiple guides
 
 function createSynth() {
   synth = new Tone.PolySynth(6, Tone.SimpleSynth)
@@ -152,13 +152,47 @@ var cantusFirmusGuide = function (container) {
       .style('font-size', '1em')
       .style('border', '0')
       .style('background-color', 'transparent')
-      .style('opacity', 0.8)
-    .selectAll('option')
+      .style('opacity', 0.7)
+      .on('change', function () {
+        if (beingPlayedBack) {      // if needed, hault playback
+          beingPlayedBack = false
+          updatePlaybackIcon()
+        }
+
+        var newNote = keyInput.property('value')
+        console.log('changing tonic to:', newNote)
+        var transposeInterval = Pitch(newNote).interval(cf.firstNote())
+        console.log('transposing by:', transposeInterval)
+        var sign = isHigher(newNote, cf.firstNote()) ? '' : '-'
+        cf = cf.transpose(sign + transposeInterval)
+        y.domain(cf.domain())       //update domain with new notes
+        svg.select('.y-axis-text').selectAll('text')
+            .datum(function (d) {
+              return { val: plusInterval(d.val, sign + transposeInterval )}
+            })
+            .attr('opacity', 0)
+            .text(function (d) { return Pitch(d.val).pitchClass() })
+            .transition()
+            .duration(animationTime*4)
+            .delay(function (d) {         // match incoming choice notes on this note
+              return Pitch(d.val).intervalSize(cf.firstNote()) * choiceAnimationTime / 6
+            })
+            .attr('opacity', 1)
+
+        svg.select('.choice-notes').selectAll('rect')
+            .datum(function (d) {
+              return {val: plusInterval(d.val, sign + transposeInterval)}
+            })
+        svg.select('.construction-notes').selectAll('rect')
+            .datum(function (d) {
+              return plusInterval(d, sign + transposeInterval)
+            })
+      })
+    keyInput.selectAll('option')
       .data(tonicChoices)
       .enter()
       .append('option')
       .text(function (d) { return d })
-      .property('value', function (d) { return d })
       .property('selected', function (d) { return d === Pitch(cf.firstNote()).pitchClass() })
 
   var modeInput = keyModeInput.append('div')
@@ -171,13 +205,15 @@ var cantusFirmusGuide = function (container) {
         .style('font-size', '1em')
         .style('border', '0')
         .style('background-color', 'transparent')
-        .style('opacity', 0.8)
+        .style('opacity', 0.7)
+        .on('change', function () {
+          console.log('changed!')
+        })
       .selectAll('option')
         .data(modeChoices)
         .enter()
         .append('option')
         .text(function (d) { return d })
-        .property('value', function (d) { return d })
         .property('selected', function (d) { return d === cf.mode() })
 
   var tonicInput = container.append('div')
