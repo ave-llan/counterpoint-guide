@@ -219,40 +219,12 @@ var cantusFirmusGuide = function (container) {
           console.log('changing mode to', newMode)
           cf = cf.changeModeTo(modeInput.property('value'))
           y.domain(cf.domain())       //update domain with new notes
-          var updatedYtext = svg.select('.y-axis-text').selectAll('text')
-              .data(cf.domain().map(function (sciPitch) {
-                        return { val: sciPitch }
-                      }), function (d) { return d.val })
-          updatedYtext.exit()
-              .attr('opacity', 1)
-              .transition()
-              .duration(animationTime)
-              .delay(function (d) {         // match incoming choice notes on this note
-                return Pitch(d.val).intervalSize(lowNote) * choiceAnimationTime / 6
-              })
-              .attr('opacity', 0)
-              .remove()
-          updatedYtext
-              .enter()
-              .append('text')
-              .call(enteringYtext)
-              .attr('x', tonicBarSectionWidth)
-              .attr('opacity', 0)
-              .transition()
-              .duration(animationTime*2)
-              .delay(function (d) {         // match incoming choice notes on this note
-                return animationTime + Pitch(d.val).intervalSize(lowNote) * choiceAnimationTime / 6
-              })
-              .attr('opacity', 1)
-          svg.select('.choice-notes').selectAll('rect')
-              .datum(function (d) {
-                var p = parsePitch(d.val)
-                return {val: p.letter + newKey.accidentalOn(p.letter) + p.octave}
-              })
+
           svg.select('.construction-notes').selectAll('rect')
               .datum(function (d, i) {
                 return cf.construction()[i]
               })
+          redraw()
         })
   modeInput.selectAll('option')
       .data(modeChoices)
@@ -887,8 +859,6 @@ var cantusFirmusGuide = function (container) {
         input.node().focus()
       })
 
-
-
   function redraw () {
     animatingAll = true
     // unselect all notes to prevent any touch-end or mouse-off events
@@ -987,13 +957,6 @@ var cantusFirmusGuide = function (container) {
     updateModeOptions()
   }
   redraw() // initialize
-  /*
-  svg.select('.y-axis-text').selectAll('text')
-      .filter(function (d) { return d.val === cf.firstNote() })
-      .attr('text-decoration', 'underline')
-      .attr('font-weight', 'bold')
-      .attr('fill', 'steelblue')
-  */
 }
 
 d3.selectAll('counterpoint')
