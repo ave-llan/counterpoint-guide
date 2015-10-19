@@ -130,10 +130,6 @@ var cantusFirmusGuide = function (container) {
 
   var keyModeInput = menuBar.append('div')
       .attr('id', 'key-mode-input')
-      //.style('position', 'absolute')
-      //.style('left', margin.left + tonicBarSectionWidth + yAxisWidth + 'px')
-      //.style('top', margin.top + height + 'px')
-      .style('font-family', 'sans-serif')
       .style('display', 'inline-flex')
 
   var keyInput = keyModeInput.append('div')
