@@ -167,27 +167,11 @@ var cantusFirmusGuide = function (container) {
         var sign = isHigher(newNote, cf.firstNote()) ? '' : '-'
         cf = cf.transpose(sign + transposeInterval)
         y.domain(cf.domain())       //update domain with new notes
-        svg.select('.y-axis-text').selectAll('text')
-            .datum(function (d) {
-              return { val: plusInterval(d.val, sign + transposeInterval )}
-            })
-            .attr('opacity', 0)
-            .text(function (d) { return Pitch(d.val).pitchClass() })
-            .transition()
-            .duration(animationTime*4)
-            .delay(function (d) {         // match incoming choice notes on this note
-              return Pitch(d.val).intervalSize(cf.firstNote()) * choiceAnimationTime / 6
-            })
-            .attr('opacity', 1)
-
-        svg.select('.choice-notes').selectAll('rect')
-            .datum(function (d) {
-              return {val: plusInterval(d.val, sign + transposeInterval)}
-            })
         svg.select('.construction-notes').selectAll('rect')
             .datum(function (d) {
               return plusInterval(d, sign + transposeInterval)
             })
+        redraw()
       })
     keyInput.selectAll('option')
       .data(tonicChoices)
