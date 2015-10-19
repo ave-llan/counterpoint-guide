@@ -209,12 +209,19 @@ var cantusFirmusGuide = function (container) {
         .on('change', function () {
           console.log('changed!')
         })
-      .selectAll('option')
-        .data(modeChoices)
-        .enter()
-        .append('option')
-        .text(function (d) { return d })
-        .property('selected', function (d) { return d === cf.mode() })
+  modeInput.selectAll('option')
+      .data(modeChoices)
+      .enter()
+      .append('option')
+      .text(function (d) { return d })
+      .property('selected', function (d) { return d === cf.mode() })
+
+  var updateModeOptions = function () {
+    modeInput.selectAll('option')
+        .attr('disabled', function (d) {
+          return (cf.changeModeTo(d) === false) ? true : null
+        })
+  }
 
   var tonicInput = container.append('div')
       .attr('background-color', 'white')
@@ -932,6 +939,7 @@ var cantusFirmusGuide = function (container) {
         .attr('fill', function () { return cf.isValid() ? finishedNoteColor : unfinishedNoteColor })
 
     appendChoices()
+    updateModeOptions()
   }
   redraw() // initialize
   /*
