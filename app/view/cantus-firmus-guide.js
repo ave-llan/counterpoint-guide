@@ -116,24 +116,34 @@ var cantusFirmusGuide = function (container) {
       beingPlayedBack      = false,       // is playback currently happening?
       animatingAll         = false,       // is everything being redrawn?
       finishedComposing    = false        // has the user accepted a complete cantus firmus?
-/*
-  var keyModeInput = container.append('div')
-      .attr('id', 'key-mode-input')
+
+  var menuBar = container.append('div')
+      .attr('id', 'menu-bar')
       .style('position', 'absolute')
       .style('left', margin.left + tonicBarSectionWidth + yAxisWidth + 'px')
       .style('top', margin.top + 'px')
+      .style('width', width - (tonicBarSectionWidth + yAxisWidth) + 'px')
+      .style('height', iconSize + 'px')
+      .style('display', 'inline-flex')
+      .style('align-items', 'center')
+
+
+  var keyModeInput = menuBar.append('div')
+      .attr('id', 'key-mode-input')
+      //.style('position', 'absolute')
+      //.style('left', margin.left + tonicBarSectionWidth + yAxisWidth + 'px')
+      //.style('top', margin.top + height + 'px')
       .style('font-family', 'sans-serif')
       .style('display', 'inline-flex')
 
   var keyInput = keyModeInput.append('div')
-      .style('height', iconSize * 0.7 + 'px')
+      .style('height', iconSize * 0.5 + 'px')
       .style('border-bottom', '1px solid rgba(0, 0, 0, 0.12)')
       .style('display', 'flex')
       .style('align-items', 'center')
       .on('click', function () { console.log('key input clicked') })
   keyInput.append('p')
       .text(Pitch(cf.firstNote()).pitchClass())
-      //.style('font-weight', 'bold')
       .style('min-width', '25px')
       .style('margin', 0)
       .style('padding', 0)
@@ -143,7 +153,7 @@ var cantusFirmusGuide = function (container) {
       .style('opacity', 0.25)
 
   var modeInput = keyModeInput.append('div')
-      .style('height', iconSize * 0.7 + 'px')
+      .style('height', iconSize * 0.5 + 'px')
       .style('border-bottom', '1px solid rgba(0, 0, 0, 0.12)')
       .style('display', 'flex')
       .style('align-items', 'center')
@@ -151,10 +161,9 @@ var cantusFirmusGuide = function (container) {
       .on('click', function () { console.log('mode input clicked') })
   modeInput.append('p')
       .text(cf.mode())
-      //.style('font-weight', 'bold')
-      .style('font-variant', 'small-caps')
+      //.style('font-variant', 'small-caps')
       .style('min-width', '93px')
-      .style('font-size', '1.3em')
+      .style('font-size', '1em')
       .style('margin', 0)
       .style('padding', 0)
       .style('opacity', 0.6)
@@ -162,7 +171,6 @@ var cantusFirmusGuide = function (container) {
       .attr('src', '../resources/drop_down.svg')
       .style('opacity', 0.25)
 
-*/
 
   var tonicInput = container.append('div')
       .attr('background-color', 'white')
