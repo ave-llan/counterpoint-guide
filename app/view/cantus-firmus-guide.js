@@ -10,14 +10,7 @@ var toMidi = require('nmusic').toMidi
 var Tone = require('tone')
 
 // notes to be used in drop down note choice menu
-var     letters = 'BAGFEDC'.split(''),
-    accidentals = ['#', '', 'b'],
-   tonicChoices = []
-letters.forEach(function (letter) {
-  accidentals.forEach(function(accidental) {
-    tonicChoices.push(letter + accidental)
-  })
-})
+var     tonicChoices = 'B Bb A# A Ab G# G Gb F# F E Eb D# D Db C# C'.split(' ')
 // modes to be used in drop down choice menu
 var modeChoices = 'major minor dorian phrygian lydian mixolydian locrian'.split(' ')
 
@@ -162,6 +155,8 @@ var cantusFirmusGuide = function (container) {
 
         var newNote = keyInput.property('value')
         console.log('changing tonic to:', newNote)
+        console.log('newNote:', newNote)
+        console.log('firstNote():', cf.firstNote())
         var transposeInterval = Pitch(newNote).interval(cf.firstNote())
         console.log('transposing by:', transposeInterval)
         var sign = isHigher(newNote, cf.firstNote()) ? '' : '-'
