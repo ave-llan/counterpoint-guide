@@ -36,7 +36,9 @@ Attribute    |  Default |  Description
 
 ## About
 Visualization created with [D3.js](d3js.org).
+
 Pitches are synthesized with the help of [Tone.js](http://tonejs.org/).
+
 Sound icons courtesy of Google's [Material Design](https://www.google.com/design/icons/).
 
-Counterpoint rules largely based on Salzer and Schachter's [Counterpoint in Composition](http://amzn.to/1kssKjp).
+Counterpoint rules based on Salzer and Schachter's [Counterpoint in Composition](http://amzn.to/1kssKjp).
