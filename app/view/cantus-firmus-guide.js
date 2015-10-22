@@ -10,7 +10,7 @@ var toMidi = require('nmusic').toMidi
 var Tone = require('tone')
 
 // notes to be used in drop down note choice menu
-var     tonicChoices = 'B Bb A# A Ab G# G Gb F# F E Eb D# D Db C# C'.split(' ')
+var tonicChoices = 'B Bb A# A Ab G# G Gb F# F E Eb D# D Db C# C'.split(' ')
 // modes to be used in drop down choice menu
 var modeChoices = 'major minor dorian phrygian lydian mixolydian locrian'.split(' ')
 
@@ -159,14 +159,16 @@ var cantusFirmusGuide = function (container) {
         console.log('firstNote():', cf.firstNote())
         var transposeInterval = Pitch(newNote).interval(cf.firstNote())
         console.log('transposing by:', transposeInterval)
-        var sign = isHigher(newNote, cf.firstNote()) ? '' : '-'
+        var sign = (tonicChoices.indexOf(newNote) > tonicChoices.indexOf(Pitch(cf.firstNote()).pitchClass())) ?
+                    '-' : ''
         cf = cf.transpose(sign + transposeInterval)
         y.domain(cf.domain())       //update domain with new notes
+                    // update construction with new notes
         svg.select('.construction-notes').selectAll('rect')
             .datum(function (d) {
               return plusInterval(d, sign + transposeInterval)
             })
-        redraw()
+        redraw()                    // update choices and y-axis by redrawing
       })
     keyInput.selectAll('option')
       .data(tonicChoices)
