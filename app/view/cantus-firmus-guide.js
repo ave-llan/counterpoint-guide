@@ -774,69 +774,6 @@ var cantusFirmusGuide = function (container) {
       .attr('opacity', 1)
       .attr('height', tonicBarHeight)
       .attr('fill', function () { return cf.isValid() ? finishedNoteColor : unfinishedNoteColor })
-      .on('click', function () {
-        if (beingPlayedBack) {      // if needed, hault playback
-          beingPlayedBack = false
-          updatePlaybackIcon()
-        }
-
-        svg.select('.y-axis-text').selectAll('text')
-            .transition()
-            .duration(animationTime)
-            .attr('font-size', fontSize)   // reset fontSize in case cf was being played back
-            .attr('opacity', 0.2)
-
-        tonicInput
-            .style('top', margin.top + y(cf.firstNote()) + 'px')
-            .style('display', null)
-        var input = tonicInput.select('input')
-            .style('height', y.rangeBand() + 'px')        // -2 for bottom-border-width of 2
-            .style('width', yAxisWidth + 'px')
-            .attr('placeholder', Pitch(cf.firstNote()).pitchClass())
-            .property('value', Pitch(cf.firstNote()).pitchClass())  // reset value
-            .on('blur', function () {
-              tonicInput.style('display', 'none')
-              var input = tonicInput.select('input')
-              var newNote = input.property('value')
-              var parsed = parsePitch(newNote)
-              if (newNote !== Pitch(cf.firstNote()).pitchClass() &&
-                parsed && parsed.octave > 1 && parsed.octave < 9) {
-                var transposeInterval = Pitch(newNote).interval(cf.firstNote())
-                console.log('transposing by:', transposeInterval)
-                var sign = isHigher(newNote, cf.firstNote()) ? '' : '-'
-                cf = cf.transpose(sign + transposeInterval)
-                y.domain(cf.domain())       //update domain with new notes
-                svg.select('.y-axis-text').selectAll('text')
-                    .datum(function (d) {
-                      return {val: plusInterval(d.val, sign + transposeInterval)}
-                    })
-                    .attr('opacity', function (d) { return d.val === cf.firstNote() ? 1 : 0 })
-                    .text(function (d) { return Pitch(d.val).pitchClass() })
-                    .transition()
-                    .duration(animationTime*4)
-                    .delay(function (d) {         // match incoming choice notes on this note
-                      return Pitch(d.val).intervalSize(cf.firstNote()) * choiceAnimationTime / 6
-                    })
-                    .attr('opacity', 1)
-
-
-                svg.select('.choice-notes').selectAll('rect')
-                    .datum(function (d) {
-                      return {val: plusInterval(d.val, sign + transposeInterval)}
-                    })
-                svg.select('.construction-notes').selectAll('rect')
-                    .datum(function (d) {
-                      return plusInterval(d, sign + transposeInterval)
-                    })
-              } else {
-                svg.select('.y-axis-text').selectAll('text')
-                    .transition()
-                    .duration(animationTime)
-                    .attr('opacity', 1)
-              }
-            })
-        input.node().focus()
-      })
 
   function redraw () {
     animatingAll = true
