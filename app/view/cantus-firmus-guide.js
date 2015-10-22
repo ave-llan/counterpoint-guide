@@ -154,11 +154,7 @@ var cantusFirmusGuide = function (container) {
         }
 
         var newNote = keyInput.property('value')
-        console.log('changing tonic to:', newNote)
-        console.log('newNote:', newNote)
-        console.log('firstNote():', cf.firstNote())
         var transposeInterval = Pitch(newNote).interval(cf.firstNote())
-        console.log('transposing by:', transposeInterval)
         var sign = (tonicChoices.indexOf(newNote) > tonicChoices.indexOf(Pitch(cf.firstNote()).pitchClass())) ?
                     '-' : ''
         cf = cf.transpose(sign + transposeInterval)
@@ -197,7 +193,6 @@ var cantusFirmusGuide = function (container) {
           var newMode = modeInput.property('value')
           var lowNote = cf.domain()[0]
           var newKey = new Key(cf.firstNote(), newMode)
-          console.log('changing mode to', newMode)
           cf = cf.changeModeTo(modeInput.property('value'))
           y.domain(cf.domain())       //update domain with new notes
 
