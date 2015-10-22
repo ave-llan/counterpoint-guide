@@ -51,6 +51,9 @@ var cantusFirmusGuide = function (container) {
                        container.attr('max-range')  || 10,
                        container.attr('max-length') || 16)
 
+  // use specified height if present
+  var desiredHeight = container.attr('height') || 450
+
   // if initial notes are given, add them now
   if (container.attr('notes')) {
     var notes = container.attr('notes').split(/\s/)
@@ -77,7 +80,6 @@ var cantusFirmusGuide = function (container) {
 
       // svg dimensions
       totalWidth           = container.node().offsetWidth,             // set to 100% possible
-      desiredHeight        = container.attr('height') || 450,
       totalHeight          = Math.min(window.innerHeight, desiredHeight), // restrict to window
       width                = totalWidth - margin.left - margin.right,
       height               = totalHeight - margin.top - margin.bottom,
