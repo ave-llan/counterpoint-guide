@@ -119,8 +119,7 @@ var cantusFirmusGuide = function (container) {
       // playback times
       timeBetweenNotes     = 500          // ms between notes on playback
 
-  var touchDetected        = false,       // has the SVG received a touchevent? if so, disable mousover
-      soundOn              = false,       // is the sound on?
+  var soundOn              = false,       // is the sound on?
       beingPlayedBack      = false,       // is playback currently happening?
       animatingAll         = false,       // is everything being redrawn?
       finishedComposing    = false        // has the user accepted a complete cantus firmus?
@@ -239,11 +238,7 @@ var cantusFirmusGuide = function (container) {
   svg.attr('height', totalHeight)
 
   svg = svg.append('g')
-            .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')')
-            .on('touchstart', function () {
-              touchDetected = true
-              d3.select(this).on('touchstart', null) // remove this listener after touch
-            })
+      .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')')
 
   // append path, note containers, and y axis container
   svg.append('path')
@@ -528,7 +523,6 @@ var cantusFirmusGuide = function (container) {
         .attr('selected', 'false')
     // disable choice mouse events
     svg.select('.choice-notes').selectAll('rect')
-        .on('mouseover', null)
         .on('mousedown', null)
         .on('touchstart', null)
         .on('mouseup', null)
@@ -600,19 +594,6 @@ var cantusFirmusGuide = function (container) {
   function applyChoiceListeners (selection) {
     selection
         .attr('animating', 'no')
-        .on('mouseover', function (d) {
-          // only do this if no touch has been detected.
-          // looks great with a mouse, is confusing on a touchscreen
-          if (!touchDetected) {
-            var selectedNote = d.val
-            // move construction line onto this choice
-            svg.select('#construction-line')
-                .datum(cf.construction().concat(selectedNote))
-                .transition()
-                .duration(300)
-                .attr('d', constructionLine)
-          }
-        })
         .on('mousedown', choiceMouseDown)
         .on('touchstart', choiceMouseDown)
         .on('mouseup', choiceMouseUp)
@@ -651,7 +632,6 @@ var cantusFirmusGuide = function (container) {
             if (d3.select(this).attr('animating') === 'no') {
               // remove event listeners from all note choices
               svg.select('.choice-notes').selectAll('rect')
-                  .on('mouseover', null)
                   .on('mousedown', null)
                   .on('touchstart', null)
                   .on('mouseup', null)
