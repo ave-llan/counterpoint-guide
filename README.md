@@ -1,5 +1,7 @@
 A visual and audio interface built on top of the [computational-counterpoint module](https://github.com/jrleszcz/counterpoint) for writing counterpoint. See a live example [here](http://musicmachine.io).
 
+![Example counterpoint](http://musicmachine.io/resources/cfexample.gif)
+
 ## Basic Usage
 Add [counterpoint-guide.min.js](counterpoint-guide.min.js) to your project at the end of the body:
 ```html
